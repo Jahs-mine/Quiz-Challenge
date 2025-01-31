@@ -8,6 +8,7 @@ class Bee {
         prophets: ["Elijah", "Samuel"],
         places: ["Jerusalem", "Bethlehem"],
         rivers: ["Jordan", "Nile"],
+        animals:["Sheep", "Goat", "Donkey"],
       },
     },
     {
@@ -18,6 +19,7 @@ class Bee {
         prophets: ["Isaiah", "Jeremiah", "Ezekiel"],
         places: ["Nazareth", "Capernaum"],
         rivers: ["Euphrates", "Tigris"],
+        animals:["Lion", "Bear", "Wolf"],
       },
     },
     {
@@ -28,6 +30,7 @@ class Bee {
         prophets: ["Hosea", "Zephaniah", "Habakkuk"],
         places: ["Hebron", "Gilead"],
         rivers: ["Jabbok", "Sihon"],
+        animals:["Cockatrice", "Behemoth", "Leviathan"],
       },
     },
   ];
