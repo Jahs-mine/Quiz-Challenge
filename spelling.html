@@ -12,6 +12,23 @@
       referrerpolicy="no-referrer"
     />
     <style>
+      #home-link {
+        /* Style for the home link/icon */
+        font-size: 24px; /* Adjust icon size */
+        color: #333; /* Adjust color */
+        text-decoration: none; /* Remove underline from link */
+        transition: color 0.3s; /* Smooth hover effect */
+      }
+
+      #home-link:hover {
+        color: #007bff; /* Change color on hover */
+      }
+
+      #home-link i {
+        /* Style the icon */
+        margin-right: 5px; /* Add some space between icon and text (if any) */
+      }
+
       body {
         font-family: sans-serif;
         display: flex;
@@ -30,7 +47,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         text-align: center;
         width: 90%; /* Occupy most of the screen width */
-        max-width: 600px; /* Set a maximum width for larger screens */
+        max-width: 750px; /* Set a maximum width for larger screens */
         box-sizing: border-box; /* Include padding and border in width */
       }
 
@@ -206,10 +223,76 @@
         display: inline-block;
         margin: 5px; /* Add some margin to labels */
       }
+
+      .input-group {
+        display: flex;
+        flex-direction: column; /* Stacked by default for smaller screens */
+        align-items: flex-start; /* Align to the left on smaller screens */
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .input-group > * {
+        margin: 5px 0;
+      }
+
+      .input-option-group {
+        /* New class for grouping label and input */
+        display: flex;
+        align-items: center; /* Vertically center label and input */
+        margin-right: 15px; /* Space between option groups */
+      }
+
+      .input-option-group label {
+        margin: 0; /* Reset default label margins */
+        margin-left: 5px; /* Space between input and label text */
+      }
+
+      #game-header {
+          margin-bottom: 10px; /* Space between header and container */
+        }
+      /* Media query for larger screens */
+      @media (min-width: 768px) {
+        .input-group {
+          flex-direction: row; /* Side-by-side on larger screens */
+          align-items: center; /* Center vertically on larger screens */
+          justify-content: center; /* Center the groups */
+        }
+
+        .input-group > * {
+          margin: 0 10px; /* Adjust spacing between groups */
+        }
+
+        #page-wrapper {
+          display: flex;
+          flex-direction: column; /* Stack elements vertically */
+          align-items: center; /* Center horizontally */
+          width: 90%;
+          max-width: 800px; /* Or your preferred max-width */
+          margin: 20px auto; /* Center the wrapper on the page */
+        }
+
+        #game-header {
+          display: flex;
+          justify-content: flex-start; /* Align items to the left */
+          width: 100%;
+          margin-bottom: 10px; /* Space between header and container */
+        }
+        #game-container {
+          /* ... other styles ... */
+          width: 100%; /* Ensure container takes full width */
+        }
+      }
     </style>
   </head>
   <body>
-    <div id="game-container"></div>
+    <div id="page-wrapper">
+      <div id="game-header">
+        <a href="index.html" id="home-link"><i class="fas fa-home"></i> Home</a>
+      </div>
+      <div id="game-container"></div>
+    </div>
+
     <script>
       const gameContainer = document.getElementById("game-container");
       gameContainer.innerHTML = `
@@ -221,23 +304,53 @@
             <button type="button" id="next" style="display: none">Next</button>
             <p id="status"></p>
 
-            <div class="input-group">
-                <h3>MODE</h3>
-                <label><input type="radio" name="mode" value="0" checked />Easy</label>
-                <label><input type="radio" name="mode" value="1" />Medium</label>
-                <label><input type="radio" name="mode" value="2" />Hard</label>
-                <label><input type="radio" name="mode" value="3" />All</label>
-            </div>
+           <div class="input-group">
+    <h3>MODE</h3>
+    <div class="input-option-group">
+        <input type="radio" name="mode" value="0" id="easy" checked>
+        <label for="easy">Easy</label>
+    </div>
+    <div class="input-option-group">
+        <input type="radio" name="mode" value="1" id="medium">
+        <label for="medium">Medium</label>
+    </div>
+    <div class="input-option-group">
+        <input type="radio" name="mode" value="2" id="hard">
+        <label for="hard">Hard</label>
+    </div>
+    <div class="input-option-group">
+        <input type="radio" name="mode" value="3" id="all">
+        <label for="all">All</label>
+    </div>
+</div>
 
-            <div class="input-group">
-                <h3>CATEGORY.</h3>
-                <label><input type="checkbox" name="category" value="kings" checked />Kings</label>
-                <label><input type="checkbox" name="category" value="queens" />Queens</label>
-                <label><input type="checkbox" name="category" value="prophets" />Prophets</label>
-                <label><input type="checkbox" name="category" value="places" />Places</label>
-                <label><input type="checkbox" name="category" value="rivers" />Rivers</label>
-                <label><input type="checkbox" name="category" value="animals" />Animals</label>
-            </div>
+<div class="input-group">
+    <h3>CATEGORY.</h3>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="kings" id="kings" checked>
+        <label for="kings">Kings</label>
+    </div>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="queens" id="queens">
+        <label for="queens">Queens</label>
+    </div>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="prophets" id="prophets">
+        <label for="prophets">Prophets</label>
+    </div>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="places" id="places">
+        <label for="places">Places</label>
+    </div>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="rivers" id="rivers">
+        <label for="rivers">Rivers</label>
+    </div>
+    <div class="input-option-group">
+        <input type="checkbox" name="category" value="animals" id="animals">
+        <label for="animals">Animals</label>
+    </div>
+</div>
 
             <button type="button" id="start">Start/Restart</button>
         `;
