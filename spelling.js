@@ -117,46 +117,40 @@ class Bee {
   getRandomWords(difficulty, category, count) {
     const entry = Bee.lexicon.find((level) => level.difficulty === difficulty);
     if (!entry || !entry.data[category]) {
-      console.warn(
-        `Invalid category "${category}" for difficulty "${difficulty}".`
-      );
-      return [];
+        console.warn(`Invalid category "${category}" for difficulty "${difficulty}".`);
+        return [];
     }
 
-    const words = [...entry.data[category]];
+    let availableWords = [...entry.data[category]];
+    const progressData = this.loadProgress();
     const selectedWords = [];
-    let progressData = this.loadProgress();
-    const weights = {};
 
-    words.forEach((word) => {
-      const progress = progressData[word] || { correct: 0, incorrect: 0 };
-      if (Object.keys(progressData).length === 0) {
-        weights[word] = 1;
-      } else {
-        weights[word] =
-          1 / (Math.sqrt(progress.correct + 1) * (progress.incorrect + 1));
-      }
-    });
-
+    // 1. Prepare words and weights:
     const weightedWords = [];
 
-    for (const word in weights) {
-      for (let i = 0; i < weights[word] * 100; i++) {
-        weightedWords.push(word);
-      }
+    availableWords.forEach(word => {
+        const progress = progressData[word] || { correct: 0, incorrect: 0 };
+        let weight = 1; // Default weight for new words
 
-    while (selectedWords.length < count && weightedWords.length > 0) {
-      const index = Math.floor(Math.random() * weightedWords.length);
-      selectedWords.push(weightedWords.splice(index, 1)[0]);
+        if (Object.keys(progressData).length !== 0 && progress) { // Only apply weighting if progress exists
+            weight = 1 / (Math.sqrt(progress.correct + 1) * (progress.incorrect + 1));
+        }
+        weightedWords.push({ word, weight }); // Store word and weight together
+    });
+
+    // 2. Sort by weight (descending):
+    weightedWords.sort((a, b) => b.weight - a.weight);
+
+    // 3. Select words (guaranteed no repetition):
+    const numToSelect = Math.min(count, weightedWords.length); // Don't select more than available
+    for (let i = 0; i < numToSelect; i++) {
+        selectedWords.push(weightedWords[i].word);
     }
 
     console.log("Selected words:", selectedWords);
-     // *** Add these lines for live updates on word selection ***
-        progressData = this.loadProgress(); // Get the latest progress
-        console.log("Current Progress Data:", progressData); // Log data used for weighting
-        return selectedWords;
-    }
-  }
+    console.log("Current Progress Data:", progressData);
+    return selectedWords;
+}
 
   shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
