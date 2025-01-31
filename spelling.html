@@ -4,42 +4,243 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spelling Bee</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      #game-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 90%; /* Occupy most of the screen width */
+        max-width: 600px; /* Set a maximum width for larger screens */
+        box-sizing: border-box; /* Include padding and border in width */
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column; /* Stack elements vertically by default */
+        align-items: center;
+        margin-bottom: 10px;
+        width: 100%; /* Make the group take full width */
+      }
+
+      .input-group > * {
+        margin: 5px 0; /* Vertical margins for stacked elements */
+      }
+
+      /* Media query for larger screens (e.g., tablets and desktops) */
+      @media (min-width: 768px) {
+        .input-group {
+          flex-direction: row; /* Switch to horizontal layout */
+          justify-content: center; /* Center horizontally */
+        }
+
+        .input-group > * {
+          margin: 0 5px; /* Horizontal margins for side-by-side elements */
+        }
+      }
+
+      /* ... (rest of your CSS styles) ... */
+
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      #game-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .input-group {
+        /* Style for grouping inputs */
+        display: flex;
+        align-items: center; /* Vertically align items */
+        margin-bottom: 10px; /* Add spacing between groups */
+        justify-content: center; /* Center the groups */
+      }
+
+      .input-group > * {
+        /* Space between elements in the group */
+        margin: 0 5px;
+      }
+
+      button {
+        /* Styles for all buttons */
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 200px;
+      }
+
+      #status {
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      h3 {
+        margin-top: 20px;
+      }
+
+      label {
+        display: inline-block; /* Needed to allow margin */
+        margin: 0 10px;
+      }
+      label input[type="radio"],
+      label input[type="checkbox"] {
+        margin-right: 5px;
+      }
+
+      #start {
+        margin-top: 20px;
+        background-color: #28a745;
+      }
+      #start:hover {
+        background-color: #1e7e34;
+      }
+
+      #speaker {
+        /* ...other button styles */
+        width: 50px; /* Set a fixed width and height for the square */
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center the icon */
+        border-radius: 8px; /* Make it a square */
+        margin-bottom: 10px; /* Space below the icon button */
+        margin-top: 0; /* remove default top margin*/
+      }
+
+      #speaker i {
+        /* Style the icon inside the button */
+        font-size: 24px; /* Adjust icon size as needed */
+      }
+      #speaker:hover {
+        background-color: #0056b3;
+      }
+
+      .input-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #speaker {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        margin-top: 0;
+      }
+
+      #speaker i {
+        font-size: 24px;
+      }
+
+      #speaker:hover {
+        background-color: #0056b3;
+      }
+
+      .input-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%; /* Make input area full width */
+      }
+
+      input[type="text"] {
+        width: 100%; /* Make input full width */
+        box-sizing: border-box; /* Include padding in width calculation */
+      }
+
+      button {
+        width: auto; /* Reset button width to auto */
+        box-sizing: border-box; /* Include padding in width */
+      }
+
+      label {
+        display: inline-block;
+        margin: 5px; /* Add some margin to labels */
+      }
+    </style>
   </head>
   <body>
-    <button id="speaker" type="button">WORD</button>
-    <input type="text" id="spelling" placeholder="Your spelling" />
-    <button type="button" id ="check">check spelling</button>
-    <button type="button" id="next" style="display: none">Next</button>
-    <!-- Hidden by default -->
-    <p id="status"></p>
-    <!-- Status message area -->
+    <div id="game-container"></div>
+    <script>
+      const gameContainer = document.getElementById("game-container");
+      gameContainer.innerHTML = `
+            <div class="input-area">
+                <button id="speaker" type="button"><i class="fas fa-volume-up"></i></button>
+                <input type="text" id="spelling" placeholder="Your spelling" />
+            </div>
+            <button type="button" id ="check">CHECK</button>
+            <button type="button" id="next" style="display: none">Next</button>
+            <p id="status"></p>
 
-    <h3>MODE</h3>
-    <label><input type="radio" name="mode" value="0" checked />Easy</label>
-    <label><input type="radio" name="mode" value="1" />Medium</label>
-    <label><input type="radio" name="mode" value="2" />Hard</label>
-    <label><input type="radio" name="mode" value="3" />All</label>
+            <div class="input-group">
+                <h3>MODE</h3>
+                <label><input type="radio" name="mode" value="0" checked />Easy</label>
+                <label><input type="radio" name="mode" value="1" />Medium</label>
+                <label><input type="radio" name="mode" value="2" />Hard</label>
+                <label><input type="radio" name="mode" value="3" />All</label>
+            </div>
 
-    <h3>CATEGORY</h3>
-    <label
-      ><input type="checkbox" name="category" value="kings" checked />
-      Kings</label
-    >
-    <label
-      ><input type="checkbox" name="category" value="queens" /> Queens</label
-    >
-    <label
-      ><input type="checkbox" name="category" value="prophets" />
-      Prophets</label
-    >
-    <label
-      ><input type="checkbox" name="category" value="places" /> Places</label
-    >
-    <label
-      ><input type="checkbox" name="category" value="rivers" /> Rivers</label
-    >
-    <button type="button" id="start">Start/Restart</button>
+            <div class="input-group">
+                <h3>CATEGORY.</h3>
+                <label><input type="checkbox" name="category" value="kings" checked />Kings</label>
+                <label><input type="checkbox" name="category" value="queens" />Queens</label>
+                <label><input type="checkbox" name="category" value="prophets" />Prophets</label>
+                <label><input type="checkbox" name="category" value="places" />Places</label>
+                <label><input type="checkbox" name="category" value="rivers" />Rivers</label>
+            </div>
 
+            <button type="button" id="start">Start/Restart</button>
+        `;
+    </script>
     <script src="spelling.js"></script>
   </body>
 </html>
