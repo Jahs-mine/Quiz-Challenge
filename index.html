@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Bee Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* Choose a modern font */
+            margin: 0;
+            background: linear-gradient(to bottom right, #f0f2f5, #e1e5eb); /* Subtle gradient background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333; /* Dark text color */
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px; /* Limit width on larger screens */
+            width: 90%;
+        }
+
+        h1 {
+            color: #007bff; /* Blue heading */
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em; /* Slightly larger paragraph text */
+            line-height: 1.6; /* Improved readability */
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease; /* Smooth hover effect */
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .container {
+                padding: 20px; /* Reduce padding on smaller screens */
+            }
+
+            h1 {
+                font-size: 1.8em; /* Smaller heading on mobile */
+            }
+
+            p {
+                font-size: 1em; /* Smaller paragraph text on mobile */
+            }
+
+            .cta-button {
+                font-size: 1em; /* Smaller button text on mobile */
+                padding: 12px 25px; /* Adjust button padding */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Spelling Bee!</h1>
+        <p>Test your spelling skills and learn new words with our fun and interactive spelling bee game. Choose your difficulty level and category, and get ready to spell!</p>
+        <a href="spelling.html" class="cta-button">Play Now</a> </div>
+</body>
+</html>
