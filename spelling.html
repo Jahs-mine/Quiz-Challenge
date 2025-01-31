@@ -280,7 +280,28 @@
         }
         #game-container {
           /* ... other styles ... */
-          width: 100%; /* Ensure container takes full width */
+          min-width: 100%; /* Ensure container takes full width */
+        }
+      }
+
+      @media (max-width: 767px) {
+
+        #page-wrapper {
+          display: flex;
+          flex-direction: column; /* Stack elements vertically */
+          align-items: center; /* Center horizontally */
+          width: 100%;
+       }
+
+        #game-header {
+          display: flex;
+          justify-content: flex-start; /* Align items to the left */
+          width: 100%;
+          margin-bottom: 10px; /* Space between header and container */
+        }
+        #game-container {
+          /* ... other styles ... */
+          width: 90%; /* Ensure container takes full width */
         }
       }
     </style>
