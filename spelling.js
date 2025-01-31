@@ -8,7 +8,7 @@ class Bee {
         prophets: ["Elijah", "Samuel"],
         places: ["Jerusalem", "Bethlehem"],
         rivers: ["Jordan", "Nile"],
-        animals:["Sheep", "Goat", "Donkey"],
+        animals: ["Sheep", "Goat", "Donkey"],
       },
     },
     {
@@ -19,7 +19,7 @@ class Bee {
         prophets: ["Isaiah", "Jeremiah", "Ezekiel"],
         places: ["Nazareth", "Capernaum"],
         rivers: ["Euphrates", "Tigris"],
-        animals:["Lion", "Bear", "Wolf"],
+        animals: ["Lion", "Bear", "Wolf"],
       },
     },
     {
@@ -30,7 +30,7 @@ class Bee {
         prophets: ["Hosea", "Zephaniah", "Habakkuk"],
         places: ["Hebron", "Gilead"],
         rivers: ["Jabbok", "Sihon"],
-        animals:["Cockatrice", "Behemoth", "Leviathan"],
+        animals: ["Cockatrice", "Behemoth", "Leviathan"],
       },
     },
   ];
@@ -41,8 +41,8 @@ class Bee {
     this.speaker = document.getElementById("speaker");
     this.spelling = document.getElementById("spelling");
     this.checkButton = document.getElementById("check");
-    this.nextButton = document.getElementById("next"); // New: Next button
-    this.status = document.getElementById("status"); // New: Status message area
+    this.nextButton = document.getElementById("next");
+    this.status = document.getElementById("status");
 
     this.mode = mode;
     this.categories = categories.length > 0 ? categories : ["kings"];
@@ -52,13 +52,50 @@ class Bee {
     this.start.addEventListener("click", this.reStart.bind(this));
     this.speaker.addEventListener("click", this.speakWord.bind(this));
     this.checkButton.addEventListener("click", this.checkSpelling.bind(this));
-    this.nextButton.addEventListener("click", this.nextWord.bind(this)); // New: Event listener
+    this.nextButton.addEventListener("click", this.nextWord.bind(this));
+  }
+
+  loadProgress() {
+    const progress = JSON.parse(localStorage.getItem("spellingProgress")) || {};
+    return progress;
+  }
+
+  saveProgress(word, correct, incorrect) {
+    let progress = this.loadProgress();
+
+    if (!progress[word] && (correct || incorrect)) {
+        progress[word] = { correct: 0, incorrect: 0 };
+    }
+    if (progress[word]) {
+        progress[word].correct += correct ? 1 : 0;
+        progress[word].incorrect += incorrect ? 1 : 0;
+    }
+
+    localStorage.setItem("spellingProgress", JSON.stringify(progress));
+    this.checkProgressReset();
+
+    // *** Add this line for live updates ***
+    console.log("Progress:", progress); // Log the entire progress object
+}
+
+
+  checkProgressReset() {
+    const lastReset = localStorage.getItem("lastProgressReset");
+    const now = Date.now();
+    const RESET_INTERVAL = 7 * 24 * 60 * 60 * 1000;
+
+    if (!lastReset || now - lastReset > RESET_INTERVAL) {
+      localStorage.removeItem("spellingProgress");
+      localStorage.setItem("lastProgressReset", now);
+      console.log("Progress data reset!");
+    }
   }
 
   getWordsForRound(mode, categories) {
     let words = [];
 
     if (mode === "3") {
+      // "All" mode
       Bee.lexicon.forEach((level) => {
         categories.forEach((category) => {
           words = words.concat(
@@ -74,15 +111,7 @@ class Bee {
       });
     }
 
-    return this.shuffleArray(words); // Mix words from different categories
-  }
-
-  shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-    }
-    return array;
+    return this.shuffleArray(words);
   }
 
   getRandomWords(difficulty, category, count) {
@@ -96,13 +125,45 @@ class Bee {
 
     const words = [...entry.data[category]];
     const selectedWords = [];
+    let progressData = this.loadProgress();
+    const weights = {};
 
-    while (selectedWords.length < count && words.length > 0) {
-      const index = Math.floor(Math.random() * words.length);
-      selectedWords.push(words.splice(index, 1)[0]);
+    words.forEach((word) => {
+      const progress = progressData[word] || { correct: 0, incorrect: 0 };
+      if (Object.keys(progressData).length === 0) {
+        weights[word] = 1;
+      } else {
+        weights[word] =
+          1 / (Math.sqrt(progress.correct + 1) * (progress.incorrect + 1));
+      }
+    });
+
+    const weightedWords = [];
+
+    for (const word in weights) {
+      for (let i = 0; i < weights[word] * 100; i++) {
+        weightedWords.push(word);
+      }
+
+    while (selectedWords.length < count && weightedWords.length > 0) {
+      const index = Math.floor(Math.random() * weightedWords.length);
+      selectedWords.push(weightedWords.splice(index, 1)[0]);
     }
 
-    return selectedWords;
+    console.log("Selected words:", selectedWords);
+     // *** Add these lines for live updates on word selection ***
+        progressData = this.loadProgress(); // Get the latest progress
+        console.log("Current Progress Data:", progressData); // Log data used for weighting
+        return selectedWords;
+    }
+  }
+
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 
   async speakWord() {
@@ -165,9 +226,11 @@ class Bee {
 
     if (userInput.toLowerCase() === correctWord.toLowerCase()) {
       this.status.innerHTML = `<span style="color: green;">✅ Correct! The word was "${correctWord}". Click "Next" for the next word.</span>`;
-      this.nextButton.style.display = "inline-block"; // Show Next button
+      this.nextButton.style.display = "inline-block";
+      this.saveProgress(correctWord, true, false); // Save correct attempt
     } else {
       this.status.innerHTML = `<span style="color: red;">❌ Incorrect. Try again.</span>`;
+      this.saveProgress(correctWord, false, true); // Save incorrect attempt
     }
   }
 
@@ -175,20 +238,20 @@ class Bee {
     if (this.currentWordIndex < this.words.length - 1) {
       this.currentWordIndex++;
       this.spelling.value = "";
-      this.status.innerHTML = ""; // Clear status
-      this.nextButton.style.display = "none"; // Hide Next button
+      this.status.innerHTML = "";
+      this.nextButton.style.display = "none";
     } else {
       this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
-      this.nextButton.style.display = "none"; // Hide Next button
+      this.nextButton.style.display = "none";
     }
   }
 
   reStart() {
     this.currentWordIndex = 0;
     this.spelling.value = "";
-    this.status.innerHTML = ""; // Clear status
+    this.status.innerHTML = "";
     this.words = this.getWordsForRound(this.mode, this.categories);
-    this.nextButton.style.display = "none"; // Hide Next button
+    this.nextButton.style.display = "none";
   }
 }
 
@@ -207,6 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let mode = getSelectedMode();
   let categories = getSelectedCategories();
   const bee = new Bee(mode, categories);
+  bee.checkProgressReset(); // Check for reset on page load
 
   document.querySelectorAll('input[name="mode"]').forEach((radio) => {
     radio.addEventListener("change", () => {
