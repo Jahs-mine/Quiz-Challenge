@@ -3,48 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Spelling Bee</title>
   </head>
   <body>
     <button id="speaker" type="button">WORD</button>
-    <input type="text" name="" id="spelling" placeholder="your spelling" />
-
-    
+    <input type="text" id="spelling" placeholder="Your spelling" />
+    <button type="button" id ="check">check spelling</button>
+    <button type="button" id="next" style="display: none">Next</button>
+    <!-- Hidden by default -->
+    <p id="status"></p>
+    <!-- Status message area -->
 
     <h3>MODE</h3>
-    <label for="easy"
-      ><input type="radio" name="mode" id="easy" value="0" checked/>easy</label
+    <label><input type="radio" name="mode" value="0" checked />Easy</label>
+    <label><input type="radio" name="mode" value="1" />Medium</label>
+    <label><input type="radio" name="mode" value="2" />Hard</label>
+    <label><input type="radio" name="mode" value="3" />All</label>
+
+    <h3>CATEGORY</h3>
+    <label
+      ><input type="checkbox" name="category" value="kings" checked />
+      Kings</label
     >
-    <label for="medium"
-      ><input type="radio" name="mode" id="medium" value="1" />medium</label
+    <label
+      ><input type="checkbox" name="category" value="queens" /> Queens</label
     >
-    <label for="hard"
-      ><input type="radio" name="mode" id="hard" value="2" />hard</label
+    <label
+      ><input type="checkbox" name="category" value="prophets" />
+      Prophets</label
     >
-    <label for="all"
-      ><input type="radio" name="mode" id="all" value="3" />All</label
+    <label
+      ><input type="checkbox" name="category" value="places" /> Places</label
+    >
+    <label
+      ><input type="checkbox" name="category" value="rivers" /> Rivers</label
     >
     <button type="button" id="start">Start/Restart</button>
-    
-    <h3>CATEGORY</h3>
-    <label for="kings"><input type="radio" name="category" id="kings" value="kings" checked/>Kings</label>
-    <label for="queens">
-        <input type="radio" name="category" id="queens" value="queens" />Queens
-    </label>
-    <label for="prophets">
-        <input type="radio" name="category" id="prophets" value="prophets" />Prophets
-    </label>
-    <label for="places">
-        <input type="radio" name="category" id="places" value="places" />Places
-    </label>
-    <label for="rivers">
-        <input type="radio" name="category" id="rivers" value="rivers" />Rivers
-    </label>
-
-
-
-
-
 
     <script src="spelling.js"></script>
   </body>

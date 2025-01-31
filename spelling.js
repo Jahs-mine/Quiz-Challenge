@@ -1,109 +1,218 @@
-// lexicon = [
-//   [
-//     {
-//       kings: [],
-//       queen: [],
-//       prophets: [],
-//       places: [],
-//       rivers: [],
-//     },
-//   ],
-//   [
-//     {
-//       kings: [],
-//       queen: [],
-//       prophets: [],
-//       places: [],
-//       rivers: [],
-//     },
-//   ],
-//   [
-//     {
-//       kings: [],
-//       queen: [],
-//       prophets: [],
-//       places: [],
-//       rivers: [],
-//     },
-//   ],
-// ];
-
-lexicon = [  
-    // Easy  
-    [  
-      {  
-        kings: ["Saul", "David", "Solomon"],  
-        queen: ["Queen of Sheba"],  
-        prophets: ["Elijah", "Samuel"],  
-        places: ["Jerusalem", "Bethlehem"],  
-        rivers: ["Jordan", "Nile"],  
-      },  
-    ],  
-    // Medium  
-    [  
-      {  
-        kings: ["Hezekiah", "Josiah"],  
-        queen: ["Esther"],  
-        prophets: ["Isaiah", "Jeremiah", "Ezekiel"],  
-        places: ["Nazareth", "Capernaum"],  
-        rivers: ["Euphrates", "Tigris"],  
-      },  
-    ],  
-    // Hard  
-    [  
-      {  
-        kings: ["Manasseh", "Zedekiah"],  
-        queen: ["Athaliah"],  
-        prophets: ["Hosea", "Zephaniah", "Habakkuk"],  
-        places: ["Hebron", "Gilead"],  
-        rivers: ["Jabbok", "Sihon"],  
-      },  
-    ],  
-  ]; 
-
-btn = document.getElementById("start");
-let mode = "",
-  category = "";
-
-btn.addEventListener("click", reStart);
-
-function getSelectedRadio(name) {
-  const selectedRadio = document.querySelector(`input[name="${name}"]:checked`); // Get the checked radio button
-  if (selectedRadio) {
-    return selectedRadio.value; // Return its value
-  } else {
-    console.log("nothing selected");
-    return null; // Or return a default value, or handle the case where nothing is selected
-  }
-}
-function reStart(event) {
-  // Your restart logic goes here.  For example:
-  console.log("Restart button clicked!");
-
-  mode = getSelectedRadio("mode");
-  category = getSelectedRadio("category");
-
-  let words = getWordsForRound(mode,category);
-
-  console.log(mode, category);
-  console.log(words);
-}
-
-function getRandomWords(wordList, numWords) {
-  const shuffled = [...wordList].sort(() => 0.5 - Math.random()); // Shuffle the array
-  return shuffled.slice(0, numWords); // Take the first 'numWords'
-}
-function getWordsForRound(mode, category) {
-  let words = [];
-  if (mode === 3) {
-    // "All" mode
-    for (let i = 0; i < 3; i++) {
-      // Iterate through all difficulty levels
-      words = words.concat(getRandomWords(lexicon[i][0][category], 10)); //Get 10 words from each difficulty
+class Bee {
+    static lexicon = [
+      {
+        difficulty: "easy",
+        data: {
+          kings: ["Saul", "David", "Solomon"],
+          queens: ["Queen of Sheba"],
+          prophets: ["Elijah", "Samuel"],
+          places: ["Jerusalem", "Bethlehem"],
+          rivers: ["Jordan", "Nile"],
+        },
+      },
+      {
+        difficulty: "medium",
+        data: {
+          kings: ["Hezekiah", "Josiah"],
+          queens: ["Esther"],
+          prophets: ["Isaiah", "Jeremiah", "Ezekiel"],
+          places: ["Nazareth", "Capernaum"],
+          rivers: ["Euphrates", "Tigris"],
+        },
+      },
+      {
+        difficulty: "hard",
+        data: {
+          kings: ["Manasseh", "Zedekiah"],
+          queens: ["Athaliah"],
+          prophets: ["Hosea", "Zephaniah", "Habakkuk"],
+          places: ["Hebron", "Gilead"],
+          rivers: ["Jabbok", "Sihon"],
+        },
+      },
+    ];
+  
+    constructor(mode, categories) {
+      this.synth = window.speechSynthesis;
+      this.start = document.getElementById("start");
+      this.speaker = document.getElementById("speaker");
+      this.spelling = document.getElementById("spelling");
+      this.checkButton = document.getElementById("check");
+      this.nextButton = document.getElementById("next"); // New: Next button
+      this.status = document.getElementById("status"); // New: Status message area
+  
+      this.mode = mode;
+      this.categories = categories.length > 0 ? categories : ["kings"];
+      this.words = this.getWordsForRound(this.mode, this.categories);
+      this.currentWordIndex = 0;
+  
+      this.start.addEventListener("click", this.reStart.bind(this));
+      this.speaker.addEventListener("click", this.speakWord.bind(this));
+      this.checkButton.addEventListener("click", this.checkSpelling.bind(this));
+      this.nextButton.addEventListener("click", this.nextWord.bind(this)); // New: Event listener
     }
-  } else {
-    words = getRandomWords(lexicon[mode][0][category], 10);
+  
+    getWordsForRound(mode, categories) {
+      let words = new Set();
+  
+      if (mode === "3") {
+        Bee.lexicon.forEach((level) => {
+          categories.forEach((category) => {
+            this.getRandomWords(level.difficulty, category, 5).forEach((word) =>
+              words.add(word)
+            );
+          });
+        });
+      } else {
+        const difficulties = ["easy", "medium", "hard"];
+        const difficulty = difficulties[parseInt(mode, 10)];
+        categories.forEach((category) => {
+          this.getRandomWords(difficulty, category, 5).forEach((word) =>
+            words.add(word)
+          );
+        });
+      }
+  
+      return [...words];
+    }
+  
+    getRandomWords(difficulty, category, count) {
+      const entry = Bee.lexicon.find((level) => level.difficulty === difficulty);
+      if (!entry || !entry.data[category]) {
+        console.warn(`Invalid category "${category}" for difficulty "${difficulty}".`);
+        return [];
+      }
+  
+      const words = [...entry.data[category]];
+      const selectedWords = [];
+  
+      while (selectedWords.length < count && words.length > 0) {
+        const index = Math.floor(Math.random() * words.length);
+        selectedWords.push(words.splice(index, 1)[0]);
+      }
+  
+      return selectedWords;
+    }
+  
+    async speakWord() {
+      if (this.words.length > 0 && this.currentWordIndex < this.words.length) {
+        const wordToSpeak = this.words[this.currentWordIndex];
+        try {
+          await this.speak(wordToSpeak);
+        } catch (error) {
+          console.error("Error speaking word:", error);
+        }
+      } else {
+        this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
+      }
+    }
+  
+    async speak(text) {
+      return new Promise((resolve, reject) => {
+        if (this.synth.speaking) {
+          reject("Speech already in progress.");
+          return;
+        }
+  
+        const utterance = new SpeechSynthesisUtterance(text);
+        this.speaker.disabled = true;
+  
+        utterance.onend = () => {
+          this.speaker.disabled = false;
+          this.spelling.focus();
+          resolve();
+        };
+  
+        utterance.onerror = (event) => {
+          console.error("Speech error:", event.error);
+          this.speaker.disabled = false;
+          reject(event.error);
+        };
+  
+        this.synth.speak(utterance);
+      });
+    }
+  
+    checkSpelling() {
+      if (this.words.length === 0) {
+        this.status.innerHTML = `<span style="color: red;">No words loaded! Select a mode and category.</span>`;
+        return;
+      }
+  
+      if (this.currentWordIndex >= this.words.length) {
+        this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
+        return;
+      }
+  
+      const userInput = this.spelling.value.trim();
+      const correctWord = this.words[this.currentWordIndex];
+  
+      if (userInput === "") {
+        this.status.innerHTML = `<span style="color: red;">Please attempt spelling before clicking "Check".</span>`;
+        return;
+      }
+  
+      if (userInput.toLowerCase() === correctWord.toLowerCase()) {
+        this.status.innerHTML = `<span style="color: green;">✅ Correct! The word was "${correctWord}". Click "Next" for the next word.</span>`;
+        this.nextButton.style.display = "inline-block"; // Show Next button
+      } else {
+        this.status.innerHTML = `<span style="color: red;">❌ Incorrect. Try again.</span>`;
+      }
+    }
+  
+    nextWord() {
+      if (this.currentWordIndex < this.words.length - 1) {
+        this.currentWordIndex++;
+        this.spelling.value = "";
+        this.status.innerHTML = ""; // Clear status
+        this.nextButton.style.display = "none"; // Hide Next button
+      } else {
+        this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
+        this.nextButton.style.display = "none"; // Hide Next button
+      }
+    }
+  
+    reStart() {
+      this.currentWordIndex = 0;
+      this.spelling.value = "";
+      this.status.innerHTML = ""; // Clear status
+      this.words = this.getWordsForRound(this.mode, this.categories);
+      this.nextButton.style.display = "none"; // Hide Next button
+    }
   }
-
-  return words;
-}
+  
+  document.addEventListener("DOMContentLoaded", () => {
+    function getSelectedMode() {
+      const selectedRadio = document.querySelector(`input[name="mode"]:checked`);
+      return selectedRadio ? selectedRadio.value : "0";
+    }
+  
+    function getSelectedCategories() {
+      return [...document.querySelectorAll('input[name="category"]:checked')].map(
+        (checkbox) => checkbox.value
+      );
+    }
+  
+    let mode = getSelectedMode();
+    let categories = getSelectedCategories();
+    const bee = new Bee(mode, categories);
+  
+    document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        bee.mode = getSelectedMode();
+        bee.words = bee.getWordsForRound(bee.mode, bee.categories);
+        bee.currentWordIndex = 0;
+        bee.spelling.value = "";
+      });
+    });
+  
+    document.querySelectorAll('input[name="category"]').forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        bee.categories = getSelectedCategories();
+        bee.words = bee.getWordsForRound(bee.mode, bee.categories);
+        bee.currentWordIndex = 0;
+        bee.spelling.value = "";
+      });
+    });
+  });
+  
