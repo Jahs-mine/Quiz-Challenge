@@ -8,8 +8,7 @@ class Bee {
           "Hezekiah", "Jeroboam", "Abijah", "Manasseh", "Jehu", "Zedekiah", "Jehoiakim", "Jehoiachin", "Omri", "Nadab"
         ],
         queens: [
-          "Queen of Sheba", "Esther", "Vashti", "Bathsheba", "Jezebel", "Athaliah", "Maacah", "Michal", "Abigail" // Removed Ruth - while a significant figure, not a queen in the traditional sense.
-        ],
+          "Queen of Sheba", "Esther", "Vashti", "Bathsheba", "Jezebel", "Athaliah", "Maacah", "Michal", "Abigail"],
         prophets: [
           "Elijah", "Samuel", "Isaiah", "Jeremiah", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Micah",
           "Nathan", "Gad", "Obadiah", "Jonah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"
@@ -18,8 +17,7 @@ class Bee {
           "Jerusalem", "Bethlehem", "Nazareth", "Egypt", "Eden", "Jericho", "Zion", "Galilee", "Canaan", "Judea",
           "Samaria", "Philippi", "Sinai", "Corinth", "Damascus", "Babylon", "Golgotha", "Bethany", "Gilgal",
           "Sodom", "Capernaum", "Thessalonica", "Ephesus", "Hebron", "Gilead", "Assyria", "Antioch", "Emmaus",
-          "Gomorrah", "Persia", "Joppa", "Tyre", "Sidon", "Caesarea", "Ptolemais" // Removed Rome and Athens - while important in biblical history, they are more broadly historical/geographical.
-        ],
+          "Gomorrah", "Persia", "Joppa", "Tyre", "Sidon", "Caesarea", "Ptolemais" ],
         rivers: ["Jordan", "Nile", "Euphrates", "Tigris", "Arnon", "Jabbok", "Kidron", "Sihon"],
         animals: [
           "Sheep", "Goat", "Donkey", "Lion", "Bear", "Wolf", "Ox", "Dove", "Fish", "Camel",
@@ -38,7 +36,7 @@ class Bee {
         ],
         queens: [
           "Esther", "Athaliah", "Vashti", "Jezebel", "Tirzah", "Jedidah", "Azubah", "Shulamite Woman", "Ahinoam", "Shelomith",
-          "Michal", "Maacah" // Removed more general terms and focused on named queens.
+          "Michal", "Maacah" 
         ],
         prophets: [
           "Isaiah", "Jeremiah", "Ezekiel", "Habakkuk", "Zephaniah", "Malachi", "Obadiah", "Zechariah", "Nahum", "Haggai",
@@ -48,7 +46,7 @@ class Bee {
           "Capernaum", "Thessalonica", "Babylon", "Ephesus", "Damascus", "Bethany", "Antioch", "Gilead", "Hebron", "Nineveh",
           "Ararat", "Sidon", "Tyre", "Laodicea", "Beersheba", "Shiloh", "Penuel", "Gilgal",
           "Nazareth", "Sinai", "Philippi", "Samaria", "Colosse", "Pella", "Gerasa", "Philadelphia", "Pergamum",
-          "Sardis", "Laodicea" // Removed Athens - same reasoning as above.
+          "Sardis", "Laodicea" 
         ],
         rivers: ["Euphrates", "Tigris", "Jabbok", "Kidron", "Pishon", "Gihon", "Hiddekel", "Chebar"],
         animals: [
@@ -69,7 +67,7 @@ class Bee {
           "Ahaz", "Jotham", "Amaziah", "Azariah", "Uzziah", "Joram"
         ],
         queens: [
-          "Athaliah", "Maacah", "Taphath", "Basemath", "Keturah", "Shiphrah", "Puah", "Tryphena", "Tryphosa", "Bernice", // Removed more general terms.
+          "Athaliah", "Maacah", "Taphath", "Basemath", "Keturah", "Shiphrah", "Puah", "Tryphena", "Tryphosa", "Bernice",
           "Jezebel", "Huldah"
         ],
         prophets: [
@@ -81,13 +79,13 @@ class Bee {
           "Mizraim", "Dedan", "Ezion-Geber", "Kadesh", "Bashan", "Shechem", "Ashkelon", "Zarephath", "Aram", "Sidon",
           "Hebron", "Antioch", "Emmaus", "Persia", "Ararat", "Nineveh", "Haran", "Carchemish", "Hamath", "Tyre",
           "Byblos", "Berytus", "Damascus", "Palmyra", "Petra", "Alexandria", "Ephesus", "Smyrna", "Pergamum", "Thyatira",
-          "Sardis", "Philadelphia", "Laodicea" // Removed more general locations.
+          "Sardis", "Philadelphia", "Laodicea"
         ],
         rivers: ["Jabbok", "Sihon", "Chebar", "Hiddekel", "Shihor", "Ahava", "Abana", "Pharpar", "Ulai", "Great River"],
         animals: [
-          "Behemoth", "Leviathan", "Cockatrice", "Chameleon", "Viper", "Adder", "Ibex",  // Removed Satyr - mythological creature.
-          "Unicorn", "Ostrich" //Kept Unicorn as it appears in some translations of the Bible.
-        ] //Kept only creatures that are mentioned in the Bible, whether real or mythological.
+          "Behemoth", "Leviathan", "Cockatrice", "Chameleon", "Viper", "Adder", "Ibex", 
+          "Unicorn", "Ostrich" 
+        ] 
       }
     }
   ];
