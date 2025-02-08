@@ -322,8 +322,9 @@
                 <button id="speaker" type="button"><i class="fas fa-volume-up"></i></button>
                 <input type="text" id="spelling" placeholder="Your spelling" />
             </div>
-            <button type="button" id ="check">CHECK</button>
-            <button type="button" id="next" style="display: none">Next</button>
+            <button type="button" id ="submit" class="btn">submit</button>
+            <button type="button" id="next" style="display: none" class="btn">Next</button>
+            <button type="button" id="reveal" class="btn">reveal</button>
             <p id="status"></p>
 
            <div class="input-group">
@@ -378,5 +379,10 @@
         `;
     </script>
     <script src="spelling.js"></script>
+
+    
+    <footer>
+      <p>disclaimer: the audio is subject to user's installed Text-to-speech engine</p>
+    </footer>
   </body>
 </html>
