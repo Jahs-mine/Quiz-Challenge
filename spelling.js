@@ -221,6 +221,10 @@ class Bee {
   }
 
   async speakWord() {
+    if(this.reveal.style.display== "none"){
+      this.reveal.style.display = "inline-block"
+      
+    }
     if (this.words.length > 0 && this.currentWordIndex < this.words.length) {
       const wordToSpeak = this.words[this.currentWordIndex];
       try {
@@ -290,7 +294,8 @@ class Bee {
       this.nextButton.style.display = "inline-block";
       this.saveProgress(correctWord, true, false); // Save correct attempt
     } else {
-      this.status.innerHTML = `<span style="color: red;">❌ Incorrect. Try again.</span>`;
+      this.status.innerHTML = `<span style="color: red;">❌ Incorrect. The word was "${correctWord}".</span>`;
+      this.nextButton.style.display = "inline-block";
       this.saveProgress(correctWord, false, true); // Save incorrect attempt
     }
   }
@@ -305,6 +310,7 @@ class Bee {
       this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
       this.nextButton.style.display = "none";
     }
+    this.reveal.style.display = "none"
   }
 
   reStart() {
