@@ -4,95 +4,436 @@ class Bee {
       difficulty: "easy",
       data: {
         kings: [
-          "Saul", "David", "Solomon", "Rehoboam", "Asa", "Jehoshaphat", "Ahab", "Uzziah", "Joash", "Josiah",
-          "Hezekiah", "Jeroboam", "Abijah", "Manasseh", "Jehu", "Zedekiah", "Jehoiakim", "Jehoiachin", "Omri", "Nadab"
+          "Saul",
+          "David",
+          "Solomon",
+          "Rehoboam",
+          "Asa",
+          "Jehoshaphat",
+          "Ahab",
+          "Uzziah",
+          "Joash",
+          "Josiah",
+          "Hezekiah",
+          "Jeroboam",
+          "Abijah",
+          "Manasseh",
+          "Jehu",
+          "Zedekiah",
+          "Jehoiakim",
+          "Jehoiachin",
+          "Omri",
+          "Nadab",
         ],
         queens: [
-          "Queen of Sheba", "Esther", "Vashti", "Bathsheba", "Jezebel", "Athaliah", "Maacah", "Michal", "Abigail"],
+          "Queen of Sheba",
+          "Esther",
+          "Vashti",
+          "Bathsheba",
+          "Jezebel",
+          "Athaliah",
+          "Maacah",
+          "Michal",
+          "Abigail",
+        ],
         prophets: [
-          "Elijah", "Samuel", "Isaiah", "Jeremiah", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Micah",
-          "Nathan", "Gad", "Obadiah", "Jonah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"
+          "Elijah",
+          "Samuel",
+          "Isaiah",
+          "Jeremiah",
+          "Ezekiel",
+          "Daniel",
+          "Hosea",
+          "Joel",
+          "Amos",
+          "Micah",
+          "Nathan",
+          "Gad",
+          "Obadiah",
+          "Jonah",
+          "Nahum",
+          "Habakkuk",
+          "Zephaniah",
+          "Haggai",
+          "Zechariah",
+          "Malachi",
         ],
         places: [
-          "Jerusalem", "Bethlehem", "Nazareth", "Egypt", "Eden", "Jericho", "Zion", "Galilee", "Canaan", "Judea",
-          "Samaria", "Philippi", "Sinai", "Corinth", "Damascus", "Babylon", "Golgotha", "Bethany", "Gilgal",
-          "Sodom", "Capernaum", "Thessalonica", "Ephesus", "Hebron", "Gilead", "Assyria", "Antioch", "Emmaus",
-          "Gomorrah", "Persia", "Joppa", "Tyre", "Sidon", "Caesarea", "Ptolemais" ],
-        rivers: ["Jordan", "Nile", "Euphrates", "Tigris", "Arnon", "Jabbok", "Kidron", "Sihon"],
+          "Jerusalem",
+          "Bethlehem",
+          "Nazareth",
+          "Egypt",
+          "Eden",
+          "Jericho",
+          "Zion",
+          "Galilee",
+          "Canaan",
+          "Judea",
+          "Samaria",
+          "Philippi",
+          "Sinai",
+          "Corinth",
+          "Damascus",
+          "Babylon",
+          "Golgotha",
+          "Bethany",
+          "Gilgal",
+          "Sodom",
+          "Capernaum",
+          "Thessalonica",
+          "Ephesus",
+          "Hebron",
+          "Gilead",
+          "Assyria",
+          "Antioch",
+          "Emmaus",
+          "Gomorrah",
+          "Persia",
+          "Joppa",
+          "Tyre",
+          "Sidon",
+          "Caesarea",
+          "Ptolemais",
+        ],
+        rivers: [
+          "Jordan",
+          "Nile",
+          "Euphrates",
+          "Tigris",
+          "Arnon",
+          "Jabbok",
+          "Kidron",
+          "Sihon",
+        ],
         animals: [
-          "Sheep", "Goat", "Donkey", "Lion", "Bear", "Wolf", "Ox", "Dove", "Fish", "Camel",
-          "Cow", "Horse", "Dog", "Cat", "Fox", "Hyena", "Leopard", "Cheetah", "Elephant", "Hippopotamus",
-          "Rhinoceros", "Giraffe", "Zebra", "Gazelle", "Antelope", "Deer", "Monkey", "Ape", "Rabbit", "Hare",
-          "Squirrel", "Mouse", "Rat", "Bat", "Bird", "Snake", "Lizard", "Crocodile", "Insect", "Spider", "Scorpion"
-        ]
-      }
+          "Sheep",
+          "Goat",
+          "Donkey",
+          "Lion",
+          "Bear",
+          "Wolf",
+          "Ox",
+          "Dove",
+          "Fish",
+          "Camel",
+          "Cow",
+          "Horse",
+          "Dog",
+          "Cat",
+          "Fox",
+          "Hyena",
+          "Leopard",
+          "Cheetah",
+          "Elephant",
+          "Hippopotamus",
+          "Rhinoceros",
+          "Giraffe",
+          "Zebra",
+          "Gazelle",
+          "Antelope",
+          "Deer",
+          "Monkey",
+          "Ape",
+          "Rabbit",
+          "Hare",
+          "Squirrel",
+          "Mouse",
+          "Rat",
+          "Bat",
+          "Bird",
+          "Snake",
+          "Lizard",
+          "Crocodile",
+          "Insect",
+          "Spider",
+          "Scorpion",
+        ],
+      },
     },
     {
       difficulty: "medium",
       data: {
         kings: [
-          "Hezekiah", "Josiah", "Jehoahaz", "Amaziah", "Adonijah", "Pekah", "Menahem", "Ahaz", "Jehoiada", "Jehoram",
-          "Jehoiakim", "Jeconiah", "Zedekiah", "Ahab", "Jehu", "Hoshea"
+          "Hezekiah",
+          "Josiah",
+          "Jehoahaz",
+          "Amaziah",
+          "Adonijah",
+          "Pekah",
+          "Menahem",
+          "Ahaz",
+          "Jehoiada",
+          "Jehoram",
+          "Jehoiakim",
+          "Jeconiah",
+          "Zedekiah",
+          "Ahab",
+          "Jehu",
+          "Hoshea",
         ],
         queens: [
-          "Esther", "Athaliah", "Vashti", "Jezebel", "Tirzah", "Jedidah", "Azubah", "Shulamite Woman", "Ahinoam", "Shelomith",
-          "Michal", "Maacah" 
+          "Esther",
+          "Athaliah",
+          "Vashti",
+          "Jezebel",
+          "Tirzah",
+          "Jedidah",
+          "Azubah",
+          "Shulamite Woman",
+          "Ahinoam",
+          "Shelomith",
+          "Michal",
+          "Maacah",
         ],
         prophets: [
-          "Isaiah", "Jeremiah", "Ezekiel", "Habakkuk", "Zephaniah", "Malachi", "Obadiah", "Zechariah", "Nahum", "Haggai",
-          "Daniel", "Hosea", "Joel", "Amos", "Jonah", "Micah", "Elisha"
+          "Isaiah",
+          "Jeremiah",
+          "Ezekiel",
+          "Habakkuk",
+          "Zephaniah",
+          "Malachi",
+          "Obadiah",
+          "Zechariah",
+          "Nahum",
+          "Haggai",
+          "Daniel",
+          "Hosea",
+          "Joel",
+          "Amos",
+          "Jonah",
+          "Micah",
+          "Elisha",
         ],
         places: [
-          "Capernaum", "Thessalonica", "Babylon", "Ephesus", "Damascus", "Bethany", "Antioch", "Gilead", "Hebron", "Nineveh",
-          "Ararat", "Sidon", "Tyre", "Laodicea", "Beersheba", "Shiloh", "Penuel", "Gilgal",
-          "Nazareth", "Sinai", "Philippi", "Samaria", "Colosse", "Pella", "Gerasa", "Philadelphia", "Pergamum",
-          "Sardis", "Laodicea" 
+          "Capernaum",
+          "Thessalonica",
+          "Babylon",
+          "Ephesus",
+          "Damascus",
+          "Bethany",
+          "Antioch",
+          "Gilead",
+          "Hebron",
+          "Nineveh",
+          "Ararat",
+          "Sidon",
+          "Tyre",
+          "Laodicea",
+          "Beersheba",
+          "Shiloh",
+          "Penuel",
+          "Gilgal",
+          "Nazareth",
+          "Sinai",
+          "Philippi",
+          "Samaria",
+          "Colosse",
+          "Pella",
+          "Gerasa",
+          "Philadelphia",
+          "Pergamum",
+          "Sardis",
+          "Laodicea",
         ],
-        rivers: ["Euphrates", "Tigris", "Jabbok", "Kidron", "Pishon", "Gihon", "Hiddekel", "Chebar"],
+        rivers: [
+          "Euphrates",
+          "Tigris",
+          "Jabbok",
+          "Kidron",
+          "Pishon",
+          "Gihon",
+          "Hiddekel",
+          "Chebar",
+        ],
         animals: [
-          "Leopard", "Hyena", "Eagle", "Vulture", "Serpent", "Jackal", "Ram", "Hart", "Gazelle", "Locust",
-          "Lion", "Bear", "Wolf", "Cheetah", "Fox", "Badger", "Weasel", "Mongoose", "Wild Boar", "Antelope",
-          "Deer", "Ibex", "Hare", "Rabbit", "Squirrel", "Mouse", "Rat", "Bat", "Eagle", "Hawk", "Owl", "Dove",
-          "Pigeon", "Quail", "Partridge", "Ostrich", "Peacock", "Crane", "Stork", "Swallow", "Sparrow", "Raven",
-          "Crow", "Snake", "Lizard", "Crocodile", "Turtle", "Tortoise", "Frog", "Toad", "Fish", "Shark", "Whale",
-          "Dolphin", "Insect", "Spider", "Scorpion", "Worm"
-        ]
-      }
+          "Leopard",
+          "Hyena",
+          "Eagle",
+          "Vulture",
+          "Serpent",
+          "Jackal",
+          "Ram",
+          "Hart",
+          "Gazelle",
+          "Locust",
+          "Lion",
+          "Bear",
+          "Wolf",
+          "Cheetah",
+          "Fox",
+          "Badger",
+          "Weasel",
+          "Mongoose",
+          "Wild Boar",
+          "Antelope",
+          "Deer",
+          "Ibex",
+          "Hare",
+          "Rabbit",
+          "Squirrel",
+          "Mouse",
+          "Rat",
+          "Bat",
+          "Eagle",
+          "Hawk",
+          "Owl",
+          "Dove",
+          "Pigeon",
+          "Quail",
+          "Partridge",
+          "Ostrich",
+          "Peacock",
+          "Crane",
+          "Stork",
+          "Swallow",
+          "Sparrow",
+          "Raven",
+          "Crow",
+          "Snake",
+          "Lizard",
+          "Crocodile",
+          "Turtle",
+          "Tortoise",
+          "Frog",
+          "Toad",
+          "Fish",
+          "Shark",
+          "Whale",
+          "Dolphin",
+          "Insect",
+          "Spider",
+          "Scorpion",
+          "Worm",
+        ],
+      },
     },
     {
       difficulty: "hard",
       data: {
         kings: [
-          "Manasseh", "Zedekiah", "Shalmaneser", "Tiglath-Pileser", "Sennacherib", "Esarhaddon", "Belshazzar", "Cyrus", "Darius", "Artaxerxes",
-          "Ahaz", "Jotham", "Amaziah", "Azariah", "Uzziah", "Joram"
+          "Manasseh",
+          "Zedekiah",
+          "Shalmaneser",
+          "Tiglath-Pileser",
+          "Sennacherib",
+          "Esarhaddon",
+          "Belshazzar",
+          "Cyrus",
+          "Darius",
+          "Artaxerxes",
+          "Ahaz",
+          "Jotham",
+          "Amaziah",
+          "Azariah",
+          "Uzziah",
+          "Joram",
         ],
         queens: [
-          "Athaliah", "Maacah", "Taphath", "Basemath", "Keturah", "Shiphrah", "Puah", "Tryphena", "Tryphosa", "Bernice",
-          "Jezebel", "Huldah"
+          "Athaliah",
+          "Maacah",
+          "Taphath",
+          "Basemath",
+          "Keturah",
+          "Shiphrah",
+          "Puah",
+          "Tryphena",
+          "Tryphosa",
+          "Bernice",
+          "Jezebel",
+          "Huldah",
         ],
         prophets: [
-          "Hosea", "Zephaniah", "Habakkuk", "Obadiah", "Nahum", "Malachi", "Micah", "Haggai", "Zechariah", "Joel",
-          "Jeremiah", "Ezekiel", "Daniel", "Elisha", "Elijah"
+          "Hosea",
+          "Zephaniah",
+          "Habakkuk",
+          "Obadiah",
+          "Nahum",
+          "Malachi",
+          "Micah",
+          "Haggai",
+          "Zechariah",
+          "Joel",
+          "Jeremiah",
+          "Ezekiel",
+          "Daniel",
+          "Elisha",
+          "Elijah",
         ],
         places: [
-          "Assyria", "Gomorrah", "Gilead", "Perea", "Sodom", "Tarshish", "Ur", "Patmos", "Ammon", "Moab",
-          "Mizraim", "Dedan", "Ezion-Geber", "Kadesh", "Bashan", "Shechem", "Ashkelon", "Zarephath", "Aram", "Sidon",
-          "Hebron", "Antioch", "Emmaus", "Persia", "Ararat", "Nineveh", "Haran", "Carchemish", "Hamath", "Tyre",
-          "Byblos", "Berytus", "Damascus", "Palmyra", "Petra", "Alexandria", "Ephesus", "Smyrna", "Pergamum", "Thyatira",
-          "Sardis", "Philadelphia", "Laodicea"
+          "Assyria",
+          "Gomorrah",
+          "Gilead",
+          "Perea",
+          "Sodom",
+          "Tarshish",
+          "Ur",
+          "Patmos",
+          "Ammon",
+          "Moab",
+          "Mizraim",
+          "Dedan",
+          "Ezion-Geber",
+          "Kadesh",
+          "Bashan",
+          "Shechem",
+          "Ashkelon",
+          "Zarephath",
+          "Aram",
+          "Sidon",
+          "Hebron",
+          "Antioch",
+          "Emmaus",
+          "Persia",
+          "Ararat",
+          "Nineveh",
+          "Haran",
+          "Carchemish",
+          "Hamath",
+          "Tyre",
+          "Byblos",
+          "Berytus",
+          "Damascus",
+          "Palmyra",
+          "Petra",
+          "Alexandria",
+          "Ephesus",
+          "Smyrna",
+          "Pergamum",
+          "Thyatira",
+          "Sardis",
+          "Philadelphia",
+          "Laodicea",
         ],
-        rivers: ["Jabbok", "Sihon", "Chebar", "Hiddekel", "Shihor", "Ahava", "Abana", "Pharpar", "Ulai", "Great River"],
+        rivers: [
+          "Jabbok",
+          "Sihon",
+          "Chebar",
+          "Hiddekel",
+          "Shihor",
+          "Ahava",
+          "Abana",
+          "Pharpar",
+          "Ulai",
+          "Great River",
+        ],
         animals: [
-          "Behemoth", "Leviathan", "Cockatrice", "Chameleon", "Viper", "Adder", "Ibex", 
-          "Unicorn", "Ostrich" 
-        ] 
-      }
-    }
+          "Behemoth",
+          "Leviathan",
+          "Cockatrice",
+          "Chameleon",
+          "Viper",
+          "Adder",
+          "Ibex",
+          "Unicorn",
+          "Ostrich",
+        ],
+      },
+    },
   ];
 
   constructor(mode, categories) {
     this.synth = window.speechSynthesis;
-    this.start = document.getElementById("start");
+    this.reStartButton = document.getElementById("reStart");
     this.reveal = document.getElementById("reveal");
     this.speaker = document.getElementById("speaker");
     this.spelling = document.getElementById("spelling");
@@ -105,7 +446,7 @@ class Bee {
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.currentWordIndex = 0;
 
-    this.start.addEventListener("click", this.reStart.bind(this));
+    this.reStartButton.addEventListener("click", this.reStart.bind(this));
     this.reveal.addEventListener("click", this.revealSpelling.bind(this));
     this.speaker.addEventListener("click", this.speakWord.bind(this));
     this.submitButton.addEventListener("click", this.submitSpelling.bind(this));
@@ -221,16 +562,19 @@ class Bee {
   }
 
   async speakWord() {
-    if(this.reveal.style.display== "none"){
-      this.reveal.style.display = "inline-block"
-      
-    }
     if (this.words.length > 0 && this.currentWordIndex < this.words.length) {
       const wordToSpeak = this.words[this.currentWordIndex];
+
+      // Immediately disable the button to prevent rapid clicks
+      this.speaker.disabled = true;
+
       try {
         await this.speak(wordToSpeak);
       } catch (error) {
         console.error("Error speaking word:", error);
+      } finally {
+        // ALWAYS re-enable the button in a 'finally' block
+        this.speaker.disabled = false;
       }
     } else {
       this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
@@ -240,22 +584,25 @@ class Bee {
   async speak(text) {
     return new Promise((resolve, reject) => {
       if (this.synth.speaking) {
-        reject("Speech already in progress.");
-        return;
+        // Instead of rejecting, queue the speech if something is already speaking.
+        // This is a much better user experience.
+        this.synth.onvoiceschanged = () => {
+          // Wait for voices to be loaded
+          this.speak(text).then(resolve).catch(reject); // Call itself when available
+          this.synth.onvoiceschanged = null; // Remove the listener
+        };
+        return; // Exit here. The recursive call will resolve/reject the promise.
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
-      this.speaker.disabled = true;
 
       utterance.onend = () => {
-        this.speaker.disabled = false;
         this.spelling.focus();
         resolve();
       };
 
       utterance.onerror = (event) => {
         console.error("Speech error:", event.error);
-        this.speaker.disabled = false;
         reject(event.error);
       };
 
@@ -310,7 +657,7 @@ class Bee {
       this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
       this.nextButton.style.display = "none";
     }
-    this.reveal.style.display = "none"
+    this.reveal.style.display = "none";
   }
 
   reStart() {
@@ -319,6 +666,7 @@ class Bee {
     this.status.innerHTML = "";
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.nextButton.style.display = "none";
+    console.log("Restarted");
   }
 }
 
