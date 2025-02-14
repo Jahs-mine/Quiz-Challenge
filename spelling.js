@@ -440,6 +440,7 @@ class Bee {
     this.submitButton = document.getElementById("submit");
     this.nextButton = document.getElementById("next");
     this.status = document.getElementById("status");
+    this.innerBar = document.getElementById("inner_bar");
 
     this.mode = mode;
     this.categories = categories.length > 0 ? categories : ["kings"];
@@ -449,8 +450,10 @@ class Bee {
     this.reStartButton.addEventListener("click", this.reStart.bind(this));
     this.reveal.addEventListener("click", this.revealSpelling.bind(this));
     this.speaker.addEventListener("click", this.speakWord.bind(this));
-    this.submitButton.addEventListener("click", this.submitSpelling.bind(this));
     this.nextButton.addEventListener("click", this.nextWord.bind(this));
+    this.submitButton.addEventListener("click", this.submitSpelling.bind(this));
+    this.spelling.addEventListener("keyup", this.handleInput.bind(this));
+    this.startRound();
   }
 
   loadProgress() {
@@ -471,9 +474,7 @@ class Bee {
 
     localStorage.setItem("spellingProgress", JSON.stringify(progress));
     this.checkProgressReset();
-
-    // *** Add this line for live updates ***
-    console.log("Progress:", progress); // Log the entire progress object
+    console.log("Progress:", progress);
   }
 
   checkProgressReset() {
@@ -515,7 +516,7 @@ class Bee {
     const entry = Bee.lexicon.find((level) => level.difficulty === difficulty);
     if (!entry || !entry.data[category]) {
       console.warn(
-        `Invalid category "${category}" for difficulty "${difficulty}".`
+        `Invalid category "<span class="math-inline">\{category\}" for difficulty "</span>{difficulty}".`
       );
       return [];
     }
@@ -524,26 +525,21 @@ class Bee {
     const progressData = this.loadProgress();
     const selectedWords = [];
 
-    // 1. Prepare words and weights:
     const weightedWords = [];
-
     availableWords.forEach((word) => {
       const progress = progressData[word] || { correct: 0, incorrect: 0 };
-      let weight = 1; // Default weight for new words
+      let weight = 1;
 
       if (Object.keys(progressData).length !== 0 && progress) {
-        // Only apply weighting if progress exists
         weight =
           1 / (Math.sqrt(progress.correct + 1) * (progress.incorrect + 1));
       }
-      weightedWords.push({ word, weight }); // Store word and weight together
+      weightedWords.push({ word, weight });
     });
 
-    // 2. Sort by weight (descending):
     weightedWords.sort((a, b) => b.weight - a.weight);
 
-    // 3. Select words (guaranteed no repetition):
-    const numToSelect = Math.min(count, weightedWords.length); // Don't select more than available
+    const numToSelect = Math.min(count, weightedWords.length);
     for (let i = 0; i < numToSelect; i++) {
       selectedWords.push(weightedWords[i].word);
     }
@@ -564,8 +560,6 @@ class Bee {
   async speakWord() {
     if (this.words.length > 0 && this.currentWordIndex < this.words.length) {
       const wordToSpeak = this.words[this.currentWordIndex];
-
-      // Immediately disable the button to prevent rapid clicks
       this.speaker.disabled = true;
 
       try {
@@ -573,25 +567,27 @@ class Bee {
       } catch (error) {
         console.error("Error speaking word:", error);
       } finally {
-        // ALWAYS re-enable the button in a 'finally' block
         this.speaker.disabled = false;
       }
     } else {
       this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
+    }
+    if (
+      this.reveal.style.display === "none" &&
+      this.nextButton.style.display === "none"
+    ) {
+      this.reveal.style.display = "inline-block";
     }
   }
 
   async speak(text) {
     return new Promise((resolve, reject) => {
       if (this.synth.speaking) {
-        // Instead of rejecting, queue the speech if something is already speaking.
-        // This is a much better user experience.
         this.synth.onvoiceschanged = () => {
-          // Wait for voices to be loaded
-          this.speak(text).then(resolve).catch(reject); // Call itself when available
-          this.synth.onvoiceschanged = null; // Remove the listener
+          this.speak(text).then(resolve).catch(reject);
+          this.synth.onvoiceschanged = null;
         };
-        return; // Exit here. The recursive call will resolve/reject the promise.
+        return;
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
@@ -612,18 +608,38 @@ class Bee {
 
   revealSpelling() {
     const correctWord = this.words[this.currentWordIndex];
-
     this.status.innerHTML = `<span style="color: green;">The word was "${correctWord}". Click "Next" for the next word.</span>`;
     this.nextButton.style.display = "inline-block";
-    this.saveProgress(correctWord, false, true); // Save correct attempt
+    this.saveProgress(correctWord, false, true);
+  }
+
+  startRound() {
+    this.words = this.getWordsForRound(this.mode, this.categories);
+    this.currentWordIndex = 0;
+    this.spelling.value = "";
+    this.status.innerHTML = "";
+    this.nextButton.style.display = "none";
+    this.reveal.style.display = "none";
+    this.setProgress(0);
+    this.speakWord();
+  }
+
+  handleInput(event) {
+    if (event.key === "Enter") {
+      this.submitSpelling();
+    }
   }
   submitSpelling() {
     if (this.words.length === 0) {
       this.status.innerHTML = `<span style="color: red;">No words loaded! Select a mode and category.</span>`;
+      this.reveal.style.display = "none";
+
       return;
     }
 
     if (this.currentWordIndex >= this.words.length) {
+      this.reveal.style.display = "none";
+
       this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
       return;
     }
@@ -633,17 +649,24 @@ class Bee {
 
     if (userInput === "") {
       this.status.innerHTML = `<span style="color: red;">Please attempt spelling before clicking "Submit".</span>`;
+      this.reveal.style.display = "none";
+
       return;
     }
 
     if (userInput.toLowerCase() === correctWord.toLowerCase()) {
-      this.status.innerHTML = `<span style="color: green;">✅ Correct! The word was "${correctWord}". Click "Next" for the next word.</span>`;
-      this.nextButton.style.display = "inline-block";
-      this.saveProgress(correctWord, true, false); // Save correct attempt
+      this.status.innerHTML = `<span style="color: green;">✅ Correct! The word was "${correctWord}".</span>`;
+      this.saveProgress(correctWord, true, false);
+      if (this.currentWordIndex < this.words.length - 1) {
+        this.nextButton.style.display = "inline-block";
+      } else {
+        this.nextButton.style.display = "none";
+        this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
+      }
     } else {
       this.status.innerHTML = `<span style="color: red;">❌ Incorrect. The word was "${correctWord}".</span>`;
       this.nextButton.style.display = "inline-block";
-      this.saveProgress(correctWord, false, true); // Save incorrect attempt
+      this.saveProgress(correctWord, false, true);
     }
   }
 
@@ -653,11 +676,18 @@ class Bee {
       this.spelling.value = "";
       this.status.innerHTML = "";
       this.nextButton.style.display = "none";
+      this.reveal.style.display = "none";
+      this.speakWord();
+      this.setProgress(((this.currentWordIndex + 1) / this.words.length) * 100);
     } else {
       this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
       this.nextButton.style.display = "none";
+      this.reveal.style.display = "none";
     }
-    this.reveal.style.display = "none";
+  }
+
+  setProgress(percentage) {
+    this.innerBar.style.setProperty("--progress-percentage", percentage + "%");
   }
 
   reStart() {
@@ -666,6 +696,9 @@ class Bee {
     this.status.innerHTML = "";
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.nextButton.style.display = "none";
+    this.reveal.style.display = "none"; // Hide Reveal button on restart
+    this.setProgress(0); // Reset progress bar
+    this.speakWord(); // Speak the first word on restart
     console.log("Restarted");
   }
 }
@@ -685,23 +718,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let mode = getSelectedMode();
   let categories = getSelectedCategories();
   const bee = new Bee(mode, categories);
-  bee.checkProgressReset(); // Check for reset on page load
+  bee.checkProgressReset();
 
   document.querySelectorAll('input[name="mode"]').forEach((radio) => {
     radio.addEventListener("change", () => {
       bee.mode = getSelectedMode();
-      bee.words = bee.getWordsForRound(bee.mode, bee.categories);
-      bee.currentWordIndex = 0;
-      bee.spelling.value = "";
+      bee.startRound(); // Call startRound to reset the game
     });
   });
 
   document.querySelectorAll('input[name="category"]').forEach((checkbox) => {
     checkbox.addEventListener("change", () => {
       bee.categories = getSelectedCategories();
-      bee.words = bee.getWordsForRound(bee.mode, bee.categories);
-      bee.currentWordIndex = 0;
-      bee.spelling.value = "";
+      bee.startRound(); // Call startRound to reset the game
     });
   });
 });
