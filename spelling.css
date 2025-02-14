@@ -145,3 +145,55 @@ body {
 .btn-secondary {
   background-color: rgb(102, 204, 119);
 }
+
+#reStart,
+#reveal {
+  /* Target both buttons */
+  background-color: #007bff; /* Example: A nice blue */
+  color: white; /* Text color */
+  border: none; /* Remove default border */
+  padding: 10px 20px; /* Adjust padding as needed */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+#reStart:hover,
+#reveal:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* spelling.css */
+/* ... (other styles) ... */
+
+/* Progress Bar */
+#progress_bar {
+  width: 90%; /* Or whatever width you want */
+  margin: 10px auto; /* Center horizontally */
+  margin-bottom: 10px;
+}
+
+#outer_bar {
+  height: 8px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #e0e0e0;
+}
+
+#inner_bar {
+  width: var(--progress-percentage, 0%);
+  background-color: #28a745;
+  height: 8px;
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+footer{
+  text-align: center;
+}

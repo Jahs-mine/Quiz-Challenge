@@ -431,7 +431,7 @@ class Bee {
       },
     },
   ];
-  constructor(mode, categories, wordsPerRound = 5) {
+  constructor(mode, categories, wordsPerRound = 3) {
     this.synth = window.speechSynthesis;
     this.reStartButton = document.getElementById("reStart");
     this.reveal = document.getElementById("reveal");
@@ -449,13 +449,58 @@ class Bee {
     this.currentWordIndex = 0;
     this.roundActive = false;
 
+    this.reveal.disabled = true;
+    this.submitButton.disabled = false;
+    this.nextButton.disabled = true;
+
+    this.reveal.style.display = "none"; // Initially hidden
+    this.nextButton.style.display = "none"; // Initially hidden
+    this.submitButton.style.display = "inline-block"; // Initially visible
+
     this.reStartButton.addEventListener("click", this.reStart.bind(this));
     this.reveal.addEventListener("click", this.revealSpelling.bind(this));
-    this.speaker.addEventListener("click", this.speakWord.bind(this));
+    this.speaker.addEventListener("click", this.handleSpeaker.bind(this));
+    this.submitButton.addEventListener("click", this.handleSubmit.bind(this));
     this.nextButton.addEventListener("click", this.nextWord.bind(this));
-    this.submitButton.addEventListener("click", this.submitSpelling.bind(this));
     this.spelling.addEventListener("keyup", this.handleInput.bind(this));
     this.startRound();
+  }
+
+  handleSpeaker() {
+    if (!this.submitButton.disabled) {
+      console.log(this.submitButton.disabled);
+      this.reveal.disabled = false;
+      this.reveal.style.display = "inline-block";
+    }
+    this.speakWord();
+  }
+
+  handleSubmit() {
+    this.submitSpelling();
+  }
+
+  nextWord() {
+    if (!this.roundActive) return;
+
+    if (this.currentWordIndex <this.words.length ) {
+      this.currentWordIndex++;
+      this.spelling.value = "";
+      this.status.innerHTML = "";
+      this.reveal.style.display = "none"; // Hide Reveal
+      this.nextButton.style.display = "none"; // Hide Next
+      if (this.currentWordIndex <= this.words.length - 1) {
+        this.submitButton.style.display = "inline-block"; // Show Submit
+        this.submitButton.disabled = false;
+      }
+
+      this.handleSpeaker();
+      this.setProgress((this.currentWordIndex / this.words.length) * 100);
+      this.reveal.disabled = true;
+
+      this.nextButton.disabled = true;
+    } else {
+      this.endRound();
+    }
   }
 
   loadProgress() {
@@ -589,12 +634,6 @@ class Bee {
     } else {
       this.status.innerHTML = `<span class="game-message game-message-error">You've finished all words!</span>`;
     }
-    if (
-      this.reveal.style.display === "none" &&
-      this.nextButton.style.display === "none"
-    ) {
-      this.reveal.style.display = "inline-block";
-    }
   }
 
   async speak(text) {
@@ -627,19 +666,27 @@ class Bee {
     if (!this.roundActive) return;
     const correctWord = this.words[this.currentWordIndex];
     this.status.innerHTML = `<span class="game-message game-message-correct">The word was "${correctWord}". Click "Next" for the next word.</span>`;
-    this.nextButton.style.display = "inline-block";
+    this.nextButton.style.display = "inline-block"; // Show Next
+    this.nextButton.disabled = false;
     this.saveProgress(correctWord, false, true);
+    this.reveal.disabled = true;
+    this.reveal.style.display = "none"; // Hide Reveal after use
   }
-
   startRound() {
     this.roundActive = true;
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.currentWordIndex = 0;
     this.spelling.value = "";
     this.status.innerHTML = "";
-    this.nextButton.style.display = "none";
     this.reveal.style.display = "none";
+    this.nextButton.style.display = "none";
     this.setProgress(0);
+    this.reveal.style.display = "none"; // Hide Reveal
+    this.nextButton.style.display = "none"; // Hide Next
+    this.submitButton.style.display = "inline-block"; // Show Submit
+    this.reveal.disabled = true;
+    this.submitButton.disabled = false;
+    this.nextButton.disabled = true;
     if (this.words.length === 0) {
       this.status.innerHTML = `<span class="game-message game-message-error">No words found for this selection.</span>`;
       this.roundActive = false;
@@ -649,8 +696,8 @@ class Bee {
   }
 
   handleInput(event) {
-    if (event.key === "Enter") {
-      this.submitSpelling();
+    if (event.key === "Enter" && !this.submitButton.disabled) {
+      this.handleSubmit();
     }
   }
 
@@ -660,10 +707,12 @@ class Bee {
     if (this.words.length === 0) {
       this.status.innerHTML = `<span class="game-message game-message-error">No words loaded! Select a mode and category.</span>`;
       this.reveal.style.display = "none";
+      this.reveal.disabled = "true";
       return;
     }
     if (this.currentWordIndex >= this.words.length) {
       this.reveal.style.display = "none";
+      this.reveal.disabled = "true";
       this.status.innerHTML = `<span class="game-message game-message-error">You've finished all words!</span>`;
       return;
     }
@@ -674,45 +723,41 @@ class Bee {
     if (userInput === "") {
       this.status.innerHTML = `<span class="game-message game-message-error">Please attempt spelling before clicking "Submit".</span>`;
       this.reveal.style.display = "none";
+      this.reveal.disabled = "true";
       return;
     }
+
+    this.reveal.disabled = true;
+    this.reveal.style.display = "none";
+    this.submitButton.style.display = "none"; // Hide Submit after click
+    this.submitButton.disabled = true; // Hide Submit after click
 
     if (userInput.toLowerCase() === correctWord.toLowerCase()) {
       this.status.innerHTML = `<span class="game-message game-message-correct">✅ Correct! The word was "${correctWord}".</span>`;
       this.saveProgress(correctWord, true, false);
-      if (this.currentWordIndex < this.words.length - 1) {
-        this.nextButton.style.display = "inline-block";
-      } else {
-        this.endRound();
-      }
     } else {
       this.status.innerHTML = `<span class="game-message game-message-incorrect">❌ Incorrect. The word was "${correctWord}".</span>`;
-      this.nextButton.style.display = "inline-block";
+      this.nextButton.style.display = "inline-block"; // Show Next
+      this.nextButton.disabled = false;
       this.saveProgress(correctWord, false, true);
+    }
+    if (this.currentWordIndex <= this.words.length - 1) {
+      this.nextButton.style.display = "inline-block"; // Show Next
+      this.nextButton.disabled = false; // Enable next after submit
+    } else {
+      this.endRound();
     }
   }
 
   endRound() {
     this.roundActive = false;
-    this.nextButton.style.display = "none";
-    this.reveal.style.display = "none";
+    this.nextButton.style.display = "none"; // Hide Next
+    this.reveal.style.display = "none"; // Hide Reveal
+    this.submitButton.style.display = "none"; // Show Submit
     this.status.innerHTML = `<span class="game-message game-message-complete">🎉 You've completed all words! Restart to play again.</span>`;
-  }
-
-  nextWord() {
-    if (!this.roundActive) return;
-
-    if (this.currentWordIndex < this.words.length - 1) {
-      this.currentWordIndex++;
-      this.spelling.value = "";
-      this.status.innerHTML = "";
-      this.nextButton.style.display = "none";
-      this.reveal.style.display = "none";
-      this.speakWord();
-      this.setProgress(((this.currentWordIndex + 1) / this.words.length) * 100);
-    } else {
-      this.endRound();
-    }
+    this.reveal.disabled = true;
+    this.submitButton.disabled = true;
+    this.nextButton.disabled = true;
   }
 
   setProgress(percentage) {
@@ -736,7 +781,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
-  const wordsPerRound = 10;
+  const wordsPerRound = this.wordsPerRound;
   let mode = getSelectedMode();
   let categories = getSelectedCategories();
   const bee = new Bee(mode, categories, wordsPerRound);
