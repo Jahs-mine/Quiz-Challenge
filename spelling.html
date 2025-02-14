@@ -1,104 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Bee</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link rel="stylesheet" href="spelling.css"/>
-  </head>
-  <body>
-    <div>
-      <div id="page-wrapper">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="spelling.css">
+</head>
+<body>
+    <div id="page-wrapper">
         <div id="game-header">
-          <a href="index.html" id="home-link"
-            ><i class="fas fa-home"></i> Home</a
-          >
+            <a href="index.html" id="home-link"><i class="fas fa-home"></i> Home</a>
         </div>
         <div id="progress_bar">
-          <div id="outer_bar">
-            <div id="inner_bar"></div>
-          </div>
+            <div id="outer_bar">
+                <div id="inner_bar"></div>
+            </div>
         </div>
+        <div id="game-container">
+            <div class="input-area">
+                <button id="speaker" type="button" aria-label="Speak the word"><i class="fas fa-volume-up"></i></button>
+                <input type="text" id="spelling" placeholder="Your spelling" aria-label="Enter your spelling" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="button-group">  <button type="button" id="submit" class="btn btn-primary">Submit</button>
+                <button type="button" id="next" style="display: none" class="btn btn-secondary">Next</button>
+                <button type="button" style="display: none" id="reveal" class="btn btn-tertiary">Reveal</button>
+            </div>
+            <p id="status" aria-live="polite"></p>  <div class="options-group">  <h3>Mode</h3>
+                <div class="input-group">
+                    <label class="input-option-group">
+                        <input type="radio" name="mode" value="0" id="easy" checked>
+                        Easy
+                    </label>
+                    <label class="input-option-group">
+                        <input type="radio" name="mode" value="1" id="medium">
+                        Medium
+                    </label>
+                    <label class="input-option-group">
+                        <input type="radio" name="mode" value="2" id="hard">
+                        Hard
+                    </label>
+                    <label class="input-option-group">
+                        <input type="radio" name="mode" value="3" id="all">
+                        All
+                    </label>
+                </div>
 
-        <div id="game-container"></div>
-      </div>
+                <h3>Category</h3>
+                <div class="input-group">
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="kings" id="kings" checked>
+                        Kings
+                    </label>
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="queens" id="queens">
+                        Queens
+                    </label>
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="prophets" id="prophets">
+                        Prophets
+                    </label>
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="places" id="places">
+                        Places
+                    </label>
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="rivers" id="rivers">
+                        Rivers
+                    </label>
+                    <label class="input-option-group">
+                        <input type="checkbox" name="category" value="animals" id="animals">
+                        Animals
+                    </label>
+                </div>
+            </div>
+
+            <button type="button" id="reStart" class="btn btn-restart">Restart</button>
+        </div>
     </div>
     <footer>
-      <p>
-        disclaimer: the audio is subject to user's installed Text-to-speech
-        engine
-      </p>
+        <p>Disclaimer: The audio is subject to the user's installed Text-to-Speech engine.</p>
     </footer>
 
-    <script>
-      const gameContainer = document.getElementById("game-container");
-      gameContainer.innerHTML = `
-            <div class="input-area">
-                <button id="speaker" type="button"><i class="fas fa-volume-up"></i></button>
-                <input type="text" id="spelling" placeholder="Your spelling" />
-            </div>
-            <button type="button" id ="submit" class="btn">submit</button>
-            <button type="button" id="next" style="display: none" class="btn">Next</button>
-            <button type="button" style="display: none" id="reveal" class="btn">reveal</button>
-            <p id="status"></p>
-
-            <div class="input-group">
-                <h3>MODE</h3>
-                <div class="input-option-group">
-                    <input type="radio" name="mode" value="0" id="easy" checked>
-                    <label for="easy">Easy</label>
-                </div>
-                <div class="input-option-group">
-                    <input type="radio" name="mode" value="1" id="medium">
-                    <label for="medium">Medium</label>
-                </div>
-                <div class="input-option-group">
-                    <input type="radio" name="mode" value="2" id="hard">
-                    <label for="hard">Hard</label>
-                </div>
-                <div class="input-option-group">
-                    <input type="radio" name="mode" value="3" id="all">
-                    <label for="all">All</label>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <h3>CATEGORY.</h3>
-                <div class="input-option-group">
-                    <input type="checkbox" name="category" value="kings" id="kings" checked>
-                    <label for="kings">Kings</label>
-                </div>
-                <div class="input-option-group">
-                    <input type="checkbox" name="category" value="queens" id="queens">
-                    <label for="queens">Queens</label>
-                </div>
-                <div class="input-option-group">
-                    <input type="checkbox" name="category" value="prophets" id="prophets">
-                    <label for="prophets">Prophets</label>
-                </div>
-    <div class="input-option-group">
-        <input type="checkbox" name="category" value="places" id="places">
-        <label for="places">Places</label>
-    </div>
-    <div class="input-option-group">
-        <input type="checkbox" name="category" value="rivers" id="rivers">
-        <label for="rivers">Rivers</label>
-    </div>
-    <div class="input-option-group">
-        <input type="checkbox" name="category" value="animals" id="animals">
-        <label for="animals">Animals</label>
-    </div>
-</div>
-            <button type="button" id="reStart">Restart</button>
-        `;
-    </script>
     <script src="spelling.js"></script>
-  </body>
+</body>
 </html>

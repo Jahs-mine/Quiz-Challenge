@@ -1,3 +1,4 @@
+// spelling.js
 class Bee {
   static lexicon = [
     {
@@ -430,8 +431,7 @@ class Bee {
       },
     },
   ];
-
-  constructor(mode, categories) {
+  constructor(mode, categories, wordsPerRound = 5) {
     this.synth = window.speechSynthesis;
     this.reStartButton = document.getElementById("reStart");
     this.reveal = document.getElementById("reveal");
@@ -444,8 +444,10 @@ class Bee {
 
     this.mode = mode;
     this.categories = categories.length > 0 ? categories : ["kings"];
+    this.wordsPerRound = wordsPerRound;
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.currentWordIndex = 0;
+    this.roundActive = false;
 
     this.reStartButton.addEventListener("click", this.reStart.bind(this));
     this.reveal.addEventListener("click", this.revealSpelling.bind(this));
@@ -474,7 +476,6 @@ class Bee {
 
     localStorage.setItem("spellingProgress", JSON.stringify(progress));
     this.checkProgressReset();
-    console.log("Progress:", progress);
   }
 
   checkProgressReset() {
@@ -485,7 +486,6 @@ class Bee {
     if (!lastReset || now - lastReset > RESET_INTERVAL) {
       localStorage.removeItem("spellingProgress");
       localStorage.setItem("lastProgressReset", now);
-      console.log("Progress data reset!");
     }
   }
 
@@ -493,11 +493,10 @@ class Bee {
     let words = [];
 
     if (mode === "3") {
-      // "All" mode
       Bee.lexicon.forEach((level) => {
         categories.forEach((category) => {
           words = words.concat(
-            this.getRandomWords(level.difficulty, category, 5)
+            this.getRandomWords(level.difficulty, category, this.wordsPerRound)
           );
         });
       });
@@ -505,7 +504,9 @@ class Bee {
       const difficulties = ["easy", "medium", "hard"];
       const difficulty = difficulties[parseInt(mode, 10)];
       categories.forEach((category) => {
-        words = words.concat(this.getRandomWords(difficulty, category, 5));
+        words = words.concat(
+          this.getRandomWords(difficulty, category, this.wordsPerRound)
+        );
       });
     }
 
@@ -513,15 +514,26 @@ class Bee {
   }
 
   getRandomWords(difficulty, category, count) {
-    const entry = Bee.lexicon.find((level) => level.difficulty === difficulty);
-    if (!entry || !entry.data[category]) {
+    const difficultyLower = difficulty.toLowerCase().trim();
+    const categoryLower = category.toLowerCase().trim();
+
+    const entry = Bee.lexicon.find(
+      (level) => level.difficulty.toLowerCase().trim() === difficultyLower
+    );
+
+    if (!entry) {
+      console.warn(`Invalid difficulty "${difficulty}" was not found.`);
+      return [];
+    }
+
+    if (!entry.data[categoryLower]) {
       console.warn(
         `Invalid category "<span class="math-inline">\{category\}" for difficulty "</span>{difficulty}".`
       );
       return [];
     }
 
-    let availableWords = [...entry.data[category]];
+    let availableWords = [...entry.data[categoryLower]];
     const progressData = this.loadProgress();
     const selectedWords = [];
 
@@ -544,8 +556,6 @@ class Bee {
       selectedWords.push(weightedWords[i].word);
     }
 
-    console.log("Selected words:", selectedWords);
-    console.log("Current Progress Data:", progressData);
     return selectedWords;
   }
 
@@ -557,20 +567,27 @@ class Bee {
     return array;
   }
 
-  async speakWord() {
-    if (this.words.length > 0 && this.currentWordIndex < this.words.length) {
+  speakWord() {
+    if (
+      this.words.length > 0 &&
+      this.currentWordIndex < this.words.length &&
+      this.roundActive
+    ) {
       const wordToSpeak = this.words[this.currentWordIndex];
       this.speaker.disabled = true;
+      this.status.setAttribute("aria-live", "polite");
 
       try {
-        await this.speak(wordToSpeak);
+        this.speak(wordToSpeak);
       } catch (error) {
         console.error("Error speaking word:", error);
       } finally {
         this.speaker.disabled = false;
       }
+    } else if (!this.roundActive) {
+      return; // Don't speak if round is inactive
     } else {
-      this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
+      this.status.innerHTML = `<span class="game-message game-message-error">You've finished all words!</span>`;
     }
     if (
       this.reveal.style.display === "none" &&
@@ -607,13 +624,15 @@ class Bee {
   }
 
   revealSpelling() {
+    if (!this.roundActive) return;
     const correctWord = this.words[this.currentWordIndex];
-    this.status.innerHTML = `<span style="color: green;">The word was "${correctWord}". Click "Next" for the next word.</span>`;
+    this.status.innerHTML = `<span class="game-message game-message-correct">The word was "${correctWord}". Click "Next" for the next word.</span>`;
     this.nextButton.style.display = "inline-block";
     this.saveProgress(correctWord, false, true);
   }
 
   startRound() {
+    this.roundActive = true;
     this.words = this.getWordsForRound(this.mode, this.categories);
     this.currentWordIndex = 0;
     this.spelling.value = "";
@@ -621,6 +640,11 @@ class Bee {
     this.nextButton.style.display = "none";
     this.reveal.style.display = "none";
     this.setProgress(0);
+    if (this.words.length === 0) {
+      this.status.innerHTML = `<span class="game-message game-message-error">No words found for this selection.</span>`;
+      this.roundActive = false;
+      return;
+    }
     this.speakWord();
   }
 
@@ -629,18 +653,18 @@ class Bee {
       this.submitSpelling();
     }
   }
-  submitSpelling() {
-    if (this.words.length === 0) {
-      this.status.innerHTML = `<span style="color: red;">No words loaded! Select a mode and category.</span>`;
-      this.reveal.style.display = "none";
 
+  submitSpelling() {
+    if (!this.roundActive) return;
+
+    if (this.words.length === 0) {
+      this.status.innerHTML = `<span class="game-message game-message-error">No words loaded! Select a mode and category.</span>`;
+      this.reveal.style.display = "none";
       return;
     }
-
     if (this.currentWordIndex >= this.words.length) {
       this.reveal.style.display = "none";
-
-      this.status.innerHTML = `<span style="color: red;">You've finished all words!</span>`;
+      this.status.innerHTML = `<span class="game-message game-message-error">You've finished all words!</span>`;
       return;
     }
 
@@ -648,29 +672,36 @@ class Bee {
     const correctWord = this.words[this.currentWordIndex];
 
     if (userInput === "") {
-      this.status.innerHTML = `<span style="color: red;">Please attempt spelling before clicking "Submit".</span>`;
+      this.status.innerHTML = `<span class="game-message game-message-error">Please attempt spelling before clicking "Submit".</span>`;
       this.reveal.style.display = "none";
-
       return;
     }
 
     if (userInput.toLowerCase() === correctWord.toLowerCase()) {
-      this.status.innerHTML = `<span style="color: green;">✅ Correct! The word was "${correctWord}".</span>`;
+      this.status.innerHTML = `<span class="game-message game-message-correct">✅ Correct! The word was "${correctWord}".</span>`;
       this.saveProgress(correctWord, true, false);
       if (this.currentWordIndex < this.words.length - 1) {
         this.nextButton.style.display = "inline-block";
       } else {
-        this.nextButton.style.display = "none";
-        this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
+        this.endRound();
       }
     } else {
-      this.status.innerHTML = `<span style="color: red;">❌ Incorrect. The word was "${correctWord}".</span>`;
+      this.status.innerHTML = `<span class="game-message game-message-incorrect">❌ Incorrect. The word was "${correctWord}".</span>`;
       this.nextButton.style.display = "inline-block";
       this.saveProgress(correctWord, false, true);
     }
   }
 
+  endRound() {
+    this.roundActive = false;
+    this.nextButton.style.display = "none";
+    this.reveal.style.display = "none";
+    this.status.innerHTML = `<span class="game-message game-message-complete">🎉 You've completed all words! Restart to play again.</span>`;
+  }
+
   nextWord() {
+    if (!this.roundActive) return;
+
     if (this.currentWordIndex < this.words.length - 1) {
       this.currentWordIndex++;
       this.spelling.value = "";
@@ -680,9 +711,7 @@ class Bee {
       this.speakWord();
       this.setProgress(((this.currentWordIndex + 1) / this.words.length) * 100);
     } else {
-      this.status.innerHTML = `<span style="color: blue;">🎉 You've completed all words! Restart to play again.</span>`;
-      this.nextButton.style.display = "none";
-      this.reveal.style.display = "none";
+      this.endRound();
     }
   }
 
@@ -691,15 +720,7 @@ class Bee {
   }
 
   reStart() {
-    this.currentWordIndex = 0;
-    this.spelling.value = "";
-    this.status.innerHTML = "";
-    this.words = this.getWordsForRound(this.mode, this.categories);
-    this.nextButton.style.display = "none";
-    this.reveal.style.display = "none"; // Hide Reveal button on restart
-    this.setProgress(0); // Reset progress bar
-    this.speakWord(); // Speak the first word on restart
-    console.log("Restarted");
+    this.startRound();
   }
 }
 
@@ -715,22 +736,23 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  const wordsPerRound = 10;
   let mode = getSelectedMode();
   let categories = getSelectedCategories();
-  const bee = new Bee(mode, categories);
+  const bee = new Bee(mode, categories, wordsPerRound);
   bee.checkProgressReset();
 
   document.querySelectorAll('input[name="mode"]').forEach((radio) => {
     radio.addEventListener("change", () => {
       bee.mode = getSelectedMode();
-      bee.startRound(); // Call startRound to reset the game
+      bee.startRound();
     });
   });
 
   document.querySelectorAll('input[name="category"]').forEach((checkbox) => {
     checkbox.addEventListener("change", () => {
       bee.categories = getSelectedCategories();
-      bee.startRound(); // Call startRound to reset the game
+      bee.startRound();
     });
   });
 });
