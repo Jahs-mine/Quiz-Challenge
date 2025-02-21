@@ -431,7 +431,7 @@ class Bee {
       },
     },
   ];
-  constructor(mode, categories, wordsPerRound = 3) {
+  constructor(mode, categories, wordsPerRound = 10) {
     this.synth = window.speechSynthesis;
     this.reStartButton = document.getElementById("reStart");
     this.reveal = document.getElementById("reveal");
