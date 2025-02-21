@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Speech color changer</h1>
-<p>Tap/click then say a color to change the background color of the app.</p>
-<div>
-  <p class="output"><em>…diagnostic messages</em></p>
-</div>
-<button id="start">start</button>
-<button id="stop">stop</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speech Recognition Test</title>
+  </head>
+  <body>
+    <button id="start">Start Listening</button>
+    <button id="stop">Stop Listening</button>
+    <p id="output">Transcript will appear here.</p>
 
-<p id="output"></p>
-
-    <script src="modules.js"></script>
-</body>
+    <script type="module" src="modules.js"></script>
+    <script type="module" src="test.js"></script>
+  </body>
 </html>

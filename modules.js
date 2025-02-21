@@ -1,89 +1,106 @@
+// gameModule.js
+
 const Game = {
   listen(state, statement) {
-    if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
-      if (state === "start") {
-        const SpeechRecognition =
-          window.SpeechRecognition || window.webkitSpeechRecognition;
-        const SpeechGrammarList =
-          window.SpeechGrammarList || window.webkitSpeechGrammarList;
-        const SpeechRecognitionEvent =
-          window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
+    return new Promise((resolve, reject) => {
+      if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+        let recognition;
 
-        const recognition = new SpeechRecognition();
-        if (statement) {
-          const speechRecognitionList = new createGrammarListFromStatement(
-            statement
-          );
-          recognition.grammars = speechRecognitionList;
-        }
+        if (state === "start") {
+          const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+          const SpeechGrammarList =
+            window.SpeechGrammarList || window.webkitSpeechGrammarList;
 
-        recognition.continuous = true; // Stop recognition after one utterance
-        recognition.interimResults = false; // Don't provide interim results
-        recognition.lang = "en-US"; // Set language (e.g., 'es-ES', 'fr-FR')
+          recognition = new SpeechRecognition();
 
-        recognition.onstart = () => {
-          console.log("Speech recognition started.");
-          // Update UI, e.g., show a microphone icon
-        };
-
-        recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          console.log("Transcript:", transcript);
-          // Do something with the transcript (e.g., display it, send it to a server)
-          document.getElementById("output").textContent = transcript; // Example: Display in a <p> tag
-        };
-
-        recognition.abort = () => {
-          console.log("Speech recognition ended.");
-          // Update UI, e.g., hide the microphone icon
-        };
-
-        recognition.onerror = (event) => {
-          console.error("Speech recognition error:", event.error);
-          // Handle errors
-        };
-
-        recognition.start();
-
-        function createGrammarListFromStatement(statement) {
-          const speechRecognitionList = new SpeechGrammarList();
-
-          // 1. Sanitize the statement (Important!)
-          const sanitizedStatement = statement.toLowerCase().trim(); // Convert to lowercase and remove leading/trailing spaces
-
-          // 2. Extract words (handle punctuation)
-          const words = sanitizedStatement
-            .split(/\s+/)
-            .filter((word) => word !== ""); // Split by whitespace, remove empty strings
-
-          // 3. Create the grammar string (using SRGS for robustness)
-          let grammarString =
-            "#JSGF V1.0; grammar statementGrammar; public <word> = ";
-
-          if (words.length === 0) {
-            grammarString += " <NULL> ;"; // Handle empty statements gracefully.
-          } else {
-            grammarString += words.join(" | ") + ";";
+          if (statement) {
+            const speechRecognitionList = this.createGrammarListFromStatement(
+              statement
+            );
+            recognition.grammars = speechRecognitionList;
           }
 
-          speechRecognitionList.addFromString(grammarString);
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = "en-UK";
 
-          return speechRecognitionList;
+          recognition.onstart = () => {
+            console.log("Speech recognition started.");
+          };
+
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            console.log("Transcript:", transcript);
+            document.getElementById("output").textContent = transcript;
+            resolve({ transcript, matched: this.checkMatch(transcript, statement) });
+          };
+
+          recognition.onend = () => {
+              console.log("Speech recognition ended.");
+          }
+
+          recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            reject(event.error);
+          };
+
+          recognition.start();
+        } else if (state === "stop" && recognition) {
+          recognition.abort();
+          resolve({transcript: null, matched: false})
         }
       } else {
-        recognition.abort();
+        console.error("Speech Recognition API is not supported.");
+        reject(new Error("Speech Recognition API is not supported."));
       }
+    });
+  },
+
+  createGrammarListFromStatement(statement) {
+    const SpeechGrammarList =
+      window.SpeechGrammarList || window.webkitSpeechGrammarList;
+    const speechRecognitionList = new SpeechGrammarList();
+
+    const sanitizedStatement = statement.toLowerCase().trim();
+    const words = sanitizedStatement
+      .split(/\s+/)
+      .filter((word) => word !== "");
+
+    let grammarString = "#JSGF V1.0; grammar statementGrammar; public <word> = ";
+
+    if (words.length === 0) {
+      grammarString += " <NULL> ;";
     } else {
-      console.error("Speech Recognition API is not supported.");
-      // Handle the error (e.g., display a message)
+      grammarString += words.join(" | ") + " ;";
+    }
+
+    speechRecognitionList.addFromString(grammarString);
+
+    return speechRecognitionList;
+  },
+
+  checkMatch(transcript, statement) {
+    const sanitizedTranscript = transcript.toLowerCase().trim();
+    const sanitizedStatement = statement.toLowerCase().trim();
+
+    return sanitizedTranscript === sanitizedStatement;
+  },
+
+  formatVerse(verse) {
+    return verse.replace(/,/g, ", ");
+  },
+
+
+  speak(text) {
+    if ("speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.error("Text-to-speech is not supported in this browser.");
     }
   },
 };
 
-const startButton = document.getElementById("start");
-const stopButton = document.getElementById("stop");
+export default Game;
 
-startButton.addEventListener("click", () =>
-  Game.listen("start", "For God so loved the world, hath thou heard")
-);
-stopButton.addEventListener("click", () => Game.listen("stop"));
