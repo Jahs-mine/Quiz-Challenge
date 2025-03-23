@@ -1,11 +1,10 @@
 import Game from "./modules.js";
 
 class RecitationGame {
-
-
   constructor() {
     this.selectedAge = null;
     this.selectedCategory = null;
+    this.usedTiles = []; // Track tiles that have been matched
     this.createLandingPage();
   }
 
@@ -13,9 +12,11 @@ class RecitationGame {
     const body = document.body;
     body.innerHTML = ""; // Clear previous content
 
-    // Create landing page content
-    const landingPage = document.createElement("div");
-    landingPage.innerHTML = `
+    // Create age group card
+    const ageGroupCard = document.createElement("div");
+    ageGroupCard.className = "card";
+    ageGroupCard.id = "ageGroupCard";
+    ageGroupCard.innerHTML = `
       <h2>Welcome to Bible Recitation Practice</h2>
       <p>Learn the verses gradually and practice more along the way.</p>
       <p>Select an age group:</p>
@@ -23,37 +24,44 @@ class RecitationGame {
       <label for="teen13">Teen: 13-15</label><br />
       <input type="radio" name="ageGroup" id="superTeen16" value="superTeen16-19" />
       <label for="superTeen16">Super Teen: 16-19</label>
-
-      <div id="categorySelection" style="display: none;">
-        <h4>Select a category to practice:</h4>
-        <ul id="categoryList">
-          <li>
-            <input type="radio" name="category" id="sanctifyRadio" value="SANCTIFY/SANCTIFIED/SANCTIFICATION" />
-            <label for="sanctifyRadio">Sanctify/Sanctified/Sanctification</label>
-          </li>
-          <li>
-            <input type="radio" name="category" id="cleanRadio" value="CLEAN, CLEANSE, CLEANSING" />
-            <label for="cleanRadio">Clean, Cleanse, Cleansing</label>
-          </li>
-          <li>
-            <input type="radio" name="category" id="redeemRadio" value="REDEEM/REDEEMED/REDEEMER" />
-            <label for="redeemRadio">Redeem/Redeemed/Redeemer</label>
-          </li>
-          <li>
-            <input type="radio" name="category" id="warRadio" value="WAR" />
-            <label for="warRadio">War</label>
-          </li>
-          <li>
-            <input type="radio" name="category" id="sacrificeRadio" value="SACRIFICE" />
-            <label for="sacrificeRadio">Sacrifice</label>
-          </li>
-        </ul>
-      </div>
-
-      <button id="startButton" style="display: none;">Start</button>
     `;
 
-    body.appendChild(landingPage);
+    // Create category card (hidden initially)
+    const categoryCard = document.createElement("div");
+    categoryCard.className = "card hidden";
+    categoryCard.id = "categoryCard";
+    categoryCard.innerHTML = `
+      <h4>Select a category to practice:</h4>
+      <ul id="categoryList">
+        <li>
+          <input type="radio" name="category" id="sanctifyRadio" value="SANCTIFY/SANCTIFIED/SANCTIFICATION" />
+          <label for="sanctifyRadio">Sanctify/Sanctified/Sanctification</label>
+        </li>
+        <li>
+          <input type="radio" name="category" id="cleanRadio" value="CLEAN, CLEANSE, CLEANSING" />
+          <label for="cleanRadio">Clean, Cleanse, Cleansing</label>
+        </li>
+        <li>
+          <input type="radio" name="category" id="redeemRadio" value="REDEEM/REDEEMED/REDEEMER" />
+          <label for="redeemRadio">Redeem/Redeemed/Redeemer</label>
+        </li>
+        <li>
+          <input type="radio" name="category" id="warRadio" value="WAR" />
+          <label for="warRadio">War</label>
+        </li>
+        <li>
+          <input type="radio" name="category" id="sacrificeRadio" value="SACRIFICE" />
+          <label for="sacrificeRadio">Sacrifice</label>
+        </li>
+      </ul>
+      <button id="startButton">Start</button>
+    `;
+
+    // Append cards to the body
+    body.appendChild(ageGroupCard);
+    body.appendChild(categoryCard);
+
+    // Set up event listeners
     this.setupEventListeners();
   }
 
@@ -62,7 +70,7 @@ class RecitationGame {
     document.querySelectorAll('input[name="ageGroup"]').forEach((radio) => {
       radio.addEventListener("change", () => {
         this.selectedAge = radio.value;
-        document.getElementById("categorySelection").style.display = "block";
+        this.showCategoryCard();
       });
     });
 
@@ -71,7 +79,6 @@ class RecitationGame {
       radio.addEventListener("change", () => {
         if (radio.checked) {
           this.selectedCategory = radio.value;
-          document.getElementById("startButton").style.display = "block";
         }
       });
     });
@@ -80,6 +87,19 @@ class RecitationGame {
     document.getElementById("startButton").addEventListener("click", () => {
       this.startTileMatchingGame();
     });
+  }
+
+  showCategoryCard() {
+    const ageGroupCard = document.getElementById("ageGroupCard");
+    const categoryCard = document.getElementById("categoryCard");
+
+    // Hide age group card
+    ageGroupCard.classList.add("hidden");
+
+    // Show category card after a short delay
+    setTimeout(() => {
+      categoryCard.classList.remove("hidden");
+    }, 300);
   }
 
   startTileMatchingGame() {
@@ -92,7 +112,8 @@ class RecitationGame {
     body.appendChild(gameContainer);
 
     // Get the selected category data
-    const categoryData = RecitationGame.data[this.selectedAge][this.selectedCategory];
+    const categoryData =
+      RecitationGame.data[this.selectedAge][this.selectedCategory];
 
     // Prepare data for the tile matching game
     const tileData = categoryData.map((item) => ({
@@ -105,28 +126,44 @@ class RecitationGame {
   }
 
   createTileMatchingGame(tileData, container) {
-    // Shuffle the tile data to randomize tile positions
-    const shuffledData = this.shuffleArray([...tileData]);
-
+    // Filter out tiles that have already been used
+    const availableTiles = tileData.filter(
+      (tile) => !this.usedTiles.includes(tile.reference)
+    );
+  
+    // Shuffle the available tiles
+    const shuffledData = this.shuffleArray([...availableTiles]);
+  
+    // Limit to 5 pairs per round
+    const limitedData = shuffledData.slice(0, 5);
+  
+    // Clear the container before adding new tiles
+    container.innerHTML = "";
+  
     // Create two columns: one for references and one for verses
     const referenceColumn = document.createElement("div");
     referenceColumn.className = "column";
     const verseColumn = document.createElement("div");
     verseColumn.className = "column";
-
+  
     // Create tiles for references and verses
-    shuffledData.forEach((item, index) => {
+    limitedData.forEach((item, index) => {
       const referenceTile = this.createTile(item.reference, index, "reference");
       const verseTile = this.createTile(item.verse, index, "verse");
-
+  
+      // Append tiles to their respective columns
       referenceColumn.appendChild(referenceTile);
       verseColumn.appendChild(verseTile);
     });
-
+  
+    // Shuffle the order of tiles within each column
+    this.shuffleColumn(referenceColumn);
+    this.shuffleColumn(verseColumn);
+  
     // Append columns to the container
     container.appendChild(referenceColumn);
     container.appendChild(verseColumn);
-
+  
     // Add click event listeners to tiles
     this.setupTileEventListeners();
   }
@@ -147,36 +184,78 @@ class RecitationGame {
   handleTileClick(tile) {
     // Ignore if the tile is already matched
     if (tile.classList.contains("matched")) return;
-
+  
+    // Get all currently selected tiles
+    const selectedTiles = document.querySelectorAll(".tile.selected");
+  
+    // If two tiles are already selected, do nothing
+    if (selectedTiles.length >= 2) return;
+  
+    // Check if the selected tile is from the same column as the previously selected tile
+    if (selectedTiles.length === 1) {
+      const firstTile = selectedTiles[0];
+      if (firstTile.dataset.type === tile.dataset.type) {
+        // If the tiles are from the same column, reset the first selection
+        firstTile.classList.remove("selected");
+        // Keep the last selection (the current tile)
+        tile.classList.add("selected");
+        return;
+      }
+    }
+  
     // Highlight the selected tile
     tile.classList.add("selected");
-
+  
     // Check if two tiles are selected
-    const selectedTiles = document.querySelectorAll(".tile.selected");
-    if (selectedTiles.length === 2) {
-      this.checkMatch(selectedTiles[0], selectedTiles[1]);
+    if (selectedTiles.length + 1 === 2) {
+      this.checkMatch(selectedTiles[0], tile);
     }
   }
-
   checkMatch(tile1, tile2) {
-    // Check if the tiles have the same ID (i.e., they are a pair)
     if (tile1.dataset.id === tile2.dataset.id) {
-      // Mark tiles as matched
+      // Correct match: apply green background
       tile1.classList.add("matched");
       tile2.classList.add("matched");
 
+      // Add the reference to the usedTiles array
+      const reference = tile1.textContent.trim();
+      this.usedTiles.push(reference);
+
+      // Remove matched tiles from the DOM after a delay
+      setTimeout(() => {
+        tile1.remove();
+        tile2.remove();
+      }, 500); // Adjust delay to match CSS animation
+
       // Check if all tiles have been matched
-      const matchedTiles = document.querySelectorAll(".tile.matched");
-      if (matchedTiles.length === document.querySelectorAll(".tile").length) {
-        alert("Congratulations! You've matched all the pairs.");
+      const remainingTiles = document.querySelectorAll(".tile");
+      if (remainingTiles.length === 0) {
+        alert("Congratulations! You've matched all the pairs in this round.");
+        this.startNextRound(); // Start the next round
       }
     } else {
+      // Incorrect match: apply orange background
+      tile1.classList.add("incorrect");
+      tile2.classList.add("incorrect");
+
       // Deselect tiles after a short delay
       setTimeout(() => {
-        tile1.classList.remove("selected");
-        tile2.classList.remove("selected");
+        tile1.classList.remove("selected", "incorrect");
+        tile2.classList.remove("selected", "incorrect");
       }, 1000);
     }
+  }
+  startNextRound() {
+    const gameContainer = document.getElementById("gameContainer");
+    const categoryData =
+      RecitationGame.data[this.selectedAge][this.selectedCategory];
+    const tileData = categoryData.map((item) => ({
+      reference: item.reference,
+      verse: item.verse,
+    }));
+
+    // Start the next round with the remaining tiles
+    this.createTileMatchingGame(tileData, gameContainer);
   }
 
   shuffleArray(array) {
@@ -187,13 +266,13 @@ class RecitationGame {
     return array;
   }
 
+  shuffleColumn(column) {
+    const tiles = Array.from(column.children); // Convert HTMLCollection to array
+    const shuffledTiles = this.shuffleArray(tiles); // Shuffle the tiles
+    column.innerHTML = ""; // Clear the column
+    shuffledTiles.forEach((tile) => column.appendChild(tile)); // Append shuffled tiles
+  }
 
-
-
-
-
-
-  
   static data = {
     "teen13-15": {
       "SANCTIFY/SANCTIFIED/SANCTIFICATION": [
