@@ -5,55 +5,90 @@ class RecitationGame {
     this.selectedAge = null;
     this.selectedCategory = null;
     this.usedTiles = [];
-    this.appContainer = document.getElementById('app-container');
+    this.appContainer = document.getElementById("app-container");
     this.recitationData = null;
-    
+
     this.loadData().then(() => {
       this.createLandingPage();
     });
   }
 
   async loadData() {
-    const response = await fetch('recitationData.json');
+    const response = await fetch("recitationData.json");
     this.recitationData = await response.json();
   }
 
   createLandingPage() {
-    this.appContainer.innerHTML = ''; // Clear previous content using the container
-
-    // Create age group card
-    const ageGroupCard = document.createElement("div");
-    ageGroupCard.className = "card";
-    ageGroupCard.id = "ageGroupCard";
-    ageGroupCard.innerHTML = `
-      <h2>Welcome to Bible Recitation Practice</h2>
-      <p>Learn the verses gradually and practice more along the way.</p>
-      <p>Select an age group:</p>
-      <input type="radio" name="ageGroup" id="teen" value="teen" />
-      <label for="teen">Teen: 13-15</label><br />
-      <input type="radio" name="ageGroup" id="superTeen" value="superTeen" />
-      <label for="superTeen">Super Teen: 16-19</label>
+    this.appContainer.innerHTML = `
+        <div class="landing-container">
+            <h1>Bible Verse Match</h1>
+            <p class="subtitle">Practice scripture memorization through interactive matching</p>
+            
+            <div class="selection-container" id="selectionContainer">
+                <h2>Select Your Age Group</h2>
+                <div class="button-grid">
+                    <button class="selection-btn age-btn" data-value="teen">
+                        <span class="main-text">Teen</span>
+                        <span class="sub-text">Ages 13-15</span>
+                    </button>
+                    <button class="selection-btn age-btn" data-value="superTeen">
+                        <span class="main-text">Super Teen</span>
+                        <span class="sub-text">Ages 16-19</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     `;
 
-    this.appContainer.appendChild(ageGroupCard);
+    this.setupEventListeners();
+  }
+
+  showCategoryCard() {
+    const selectionContainer = document.getElementById("selectionContainer");
+    selectionContainer.innerHTML = `
+        <button class="back-button">← Back to Age Groups</button>
+        <h2>Select a Category</h2>
+        <div class="button-grid">
+            <button class="selection-btn category-btn" data-value="SANCTIFY/SANCTIFIED/SANCTIFICATION">
+                Sanctify/Sanctified
+            </button>
+            <button class="selection-btn category-btn" data-value="CLEAN/CLEANSE/CLEANSING">
+                Clean/Cleanse
+            </button>
+            <button class="selection-btn category-btn" data-value="REDEEM/REDEEMED/REDEEMER">
+                Redeem/Redeemed
+            </button>
+            <button class="selection-btn category-btn" data-value="WAR">
+                War
+            </button>
+            <button class="selection-btn category-btn" data-value="SACRIFICE">
+                Sacrifice
+            </button>
+        </div>
+    `;
+
+    // Back button functionality
+    document.querySelector(".back-button").addEventListener("click", () => {
+      this.createLandingPage();
+    });
+
     this.setupEventListeners();
   }
 
   setupEventListeners() {
     // Age group selection
-    document.querySelectorAll('input[name="ageGroup"]').forEach((radio) => {
-      radio.addEventListener("change", () => {
-        this.selectedAge = radio.value;
+    document.querySelectorAll(".age-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        this.selectedAge = button.dataset.value;
         this.showCategoryCard();
       });
     });
 
     // Category selection
-    document.querySelectorAll('input[name="category"]').forEach((radio) => {
-      radio.addEventListener("change", () => {
-        if (radio.checked) {
-          this.selectedCategory = radio.value;
-        }
+    document.querySelectorAll(".category-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        this.selectedCategory = button.dataset.value;
+        this.startTileMatchingGame();
       });
     });
 
@@ -62,85 +97,31 @@ class RecitationGame {
       this.startTileMatchingGame();
     });
   }
-
-  showCategoryCard() {
-    const ageGroupCard = document.getElementById("ageGroupCard");
-    const categoryCard = document.createElement("div");
-    categoryCard.className = "card";
-    categoryCard.id = "categoryCard";
-    categoryCard.innerHTML = `
-      <button class="back-button">← Back</button>
-      <h4>Select a category to practice:</h4>
-      <ul id="categoryList">
-        <li>
-          <input type="radio" name="category" id="sanctifyRadio" value="SANCTIFY/SANCTIFIED/SANCTIFICATION" />
-          <label for="sanctifyRadio">Sanctify/Sanctified/Sanctification</label>
-        </li>
-        <li>
-          <input type="radio" name="category" id="cleanRadio" value="CLEAN, CLEANSE, CLEANSING" />
-          <label for="cleanRadio">Clean, Cleanse, Cleansing</label>
-        </li>
-        <li>
-          <input type="radio" name="category" id="redeemRadio" value="REDEEM/REDEEMED/REDEEMER" />
-          <label for="redeemRadio">Redeem/Redeemed/Redeemer</label>
-        </li>
-        <li>
-          <input type="radio" name="category" id="warRadio" value="WAR" />
-          <label for="warRadio">War</label>
-        </li>
-        <li>
-          <input type="radio" name="category" id="sacrificeRadio" value="SACRIFICE" />
-          <label for="sacrificeRadio">Sacrifice</label>
-        </li>
-      </ul>
-      <button id="startButton">Start</button>
-    `;
-
-    // Remove existing category card if it exists
-    const existingCategoryCard = document.getElementById("categoryCard");
-    if (existingCategoryCard) {
-      existingCategoryCard.remove();
-    }
-
-    this.appContainer.appendChild(categoryCard);
-    
-    // Add back button event listener
-    categoryCard.querySelector('.back-button').addEventListener('click', () => {
-      categoryCard.remove();
-      ageGroupCard.classList.remove('hidden');
-    });
-
-    // Hide age group card
-    ageGroupCard.classList.add('hidden');
-    
-    // Setup event listeners for the new card
-    this.setupEventListeners();
-  }
-
   startTileMatchingGame() {
     this.appContainer.innerHTML = "";
-    
+
     const gameContainer = document.createElement("div");
     gameContainer.id = "gameContainer";
-    
+
     // Create back button container
     const backButtonContainer = document.createElement("div");
     backButtonContainer.className = "back-button-container";
-    
+
     const backButton = document.createElement("button");
     backButton.className = "back-button";
     backButton.textContent = "← Back to Categories";
-    backButton.addEventListener('click', () => {
+    backButton.addEventListener("click", () => {
       this.createLandingPage();
       this.showCategoryCard();
     });
-    
+
     backButtonContainer.appendChild(backButton);
     this.appContainer.appendChild(backButtonContainer);
     this.appContainer.appendChild(gameContainer);
-    
+
     // Get the selected category data
-    const categoryData = this.recitationData[this.selectedAge][this.selectedCategory];
+    const categoryData =
+      this.recitationData[this.selectedAge][this.selectedCategory];
 
     // Prepare data for the tile matching game
     const tileData = categoryData.map((item) => ({
@@ -157,40 +138,40 @@ class RecitationGame {
     const availableTiles = tileData.filter(
       (tile) => !this.usedTiles.includes(tile.reference)
     );
-  
+
     // Shuffle the available tiles
     const shuffledData = this.shuffleArray([...availableTiles]);
-  
+
     // Limit to 5 pairs per round
     const limitedData = shuffledData.slice(0, 5);
-  
+
     // Clear the container before adding new tiles
     container.innerHTML = "";
-  
+
     // Create two columns: one for references and one for verses
     const referenceColumn = document.createElement("div");
     referenceColumn.className = "column";
     const verseColumn = document.createElement("div");
     verseColumn.className = "column";
-  
+
     // Create tiles for references and verses
     limitedData.forEach((item, index) => {
       const referenceTile = this.createTile(item.reference, index, "reference");
       const verseTile = this.createTile(item.verse, index, "verse");
-  
+
       // Append tiles to their respective columns
       referenceColumn.appendChild(referenceTile);
       verseColumn.appendChild(verseTile);
     });
-  
+
     // Shuffle the order of tiles within each column
     this.shuffleColumn(referenceColumn);
     this.shuffleColumn(verseColumn);
-  
+
     // Append columns to the container
     container.appendChild(referenceColumn);
     container.appendChild(verseColumn);
-  
+
     // Add click event listeners to tiles
     this.setupTileEventListeners();
   }
@@ -211,13 +192,13 @@ class RecitationGame {
   handleTileClick(tile) {
     // Ignore if the tile is already matched
     if (tile.classList.contains("matched")) return;
-  
+
     // Get all currently selected tiles
     const selectedTiles = document.querySelectorAll(".tile.selected");
-  
+
     // If two tiles are already selected, do nothing
     if (selectedTiles.length >= 2) return;
-  
+
     // Check if the selected tile is from the same column as the previously selected tile
     if (selectedTiles.length === 1) {
       const firstTile = selectedTiles[0];
@@ -229,10 +210,10 @@ class RecitationGame {
         return;
       }
     }
-  
+
     // Highlight the selected tile
     tile.classList.add("selected");
-  
+
     // Check if two tiles are selected
     if (selectedTiles.length + 1 === 2) {
       this.checkMatch(selectedTiles[0], tile);
@@ -276,7 +257,8 @@ class RecitationGame {
 
   startNextRound() {
     const gameContainer = document.getElementById("gameContainer");
-    const categoryData = this.recitationData[this.selectedAge][this.selectedCategory];
+    const categoryData =
+      this.recitationData[this.selectedAge][this.selectedCategory];
     const tileData = categoryData.map((item) => ({
       reference: item.reference,
       verse: item.verse,
@@ -300,7 +282,6 @@ class RecitationGame {
     column.innerHTML = "";
     shuffledTiles.forEach((tile) => column.appendChild(tile));
   }
-
 }
 
 // Initialize the game when the DOM is fully loaded
