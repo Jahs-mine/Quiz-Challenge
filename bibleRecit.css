@@ -152,3 +152,46 @@ button:hover {
     visibility: hidden;
   }
 }
+
+
+/* Add these styles to your existing CSS */
+.back-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-bottom: 15px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.back-button:hover {
+  color: #2980b9;
+}
+
+.back-button::before {
+  content: "←";
+  margin-right: 5px;
+}
+
+.back-button-container {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+/* Adjust card layout to accommodate back button */
+.card {
+  position: relative;
+  padding-top: 40px; /* Make space for back button */
+}
+
+.card .back-button {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+}
