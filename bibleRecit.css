@@ -1,4 +1,4 @@
-/* General Styles */
+/* Base Styles */
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f9;
@@ -8,8 +8,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh; /* Ensure the body takes up the full viewport height */
+  min-height: 100vh;
 }
 
 h2 {
@@ -22,17 +21,24 @@ p {
   margin-bottom: 20px;
 }
 
-/* Card Styles */
-.card {
-  background-color: white;
+/* Card & Container Styles */
+.card, .selection-container {
+  background: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   max-width: 400px;
   width: 100%;
   margin: 10px;
+  text-align: center;
+  position: relative;
   transition: opacity 0.5s ease, transform 0.5s ease;
-  text-align: center; /* Center text inside the card */
+}
+
+.selection-container {
+  max-width: 800px;
+  padding: 2rem;
+  margin-top: 1.5rem;
 }
 
 .card.hidden {
@@ -41,15 +47,46 @@ p {
   pointer-events: none;
 }
 
-/* Radio Buttons and Labels */
-input[type="radio"] {
-  margin-right: 10px;
+/* Game Elements */
+#gameContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 800px;
 }
 
-label {
-  font-size: 16px;
-  color: #333;
+.tile {
+  background-color: #3498db;
+  color: white;
+  border-radius: 10px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  height: 100px;
+  min-width: 150px;
+  margin: 10px;
+  padding: 10px; /* Added padding for text tiles */
+  text-align: center; /* Ensure text alignment */
+  box-sizing: border-box; /* Include padding in width/height */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tile:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.tile.selected { background-color: #b819d8; }
+.tile.incorrect { background-color: #e67e22; }
+.tile.matched {
+  background-color: #2ecc71;
+  cursor: default;
+  animation: fadeOut 0.5s forwards 2s;
 }
 
 /* Buttons */
@@ -58,172 +95,36 @@ button {
   color: white;
   border: none;
   padding: 10px 20px;
-  font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 20px;
   transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #2980b9;
-}
-
-/* Game Container */
-#gameContainer {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-top: 20px;
-  width: 100%;
-  max-width: 800px;
-}
-
-/* Tiles */
-.tile {
-  background-color: #3498db;
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 100px; /* Fixed height for all tiles */
-  min-width: 150px; /* Minimum width to ensure consistency */
-  margin: 10px; /* Add some spacing between tiles */
-}
-
-.tile:hover {
-  background-color: #2980b9;
-  transform: scale(1.05);
-}
-
-
-
-/* Single selection */
-.tile.selected {
-  background-color: #b819d8; /* Purple */
-}
-
-/* Ensure columns are aligned properly */
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Add spacing between tiles in the same column */
-}
-
-
-/* Incorrect match */
-.tile.incorrect {
-    background-color: #e67e22; /* Orange */ 
-  }
-
-/* Responsive Design */
-@media (max-width: 600px) {
-  #gameContainer {
-    grid-template-columns: 1fr;
-  }
-
-  .tile {
-    padding: 15px;
-    font-size: 14px;
-  }
-}
-
-
-
-.tile.matched {
-  background-color: #2ecc71; /* Green */
-  cursor: default;
-  animation: fadeOut 0.5s forwards 2s;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-
-/* Add these styles to your existing CSS */
-.back-button {
-  background: none;
-  border: none;
-  color: #3498db;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 5px 10px;
-  margin-bottom: 15px;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.3s ease;
-}
-
-.back-button:hover {
-  color: #2980b9;
-}
-
-.back-button::before {
-  content: "←";
-  margin-right: 5px;
-}
-
-.back-button-container {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 10px;
-  text-align: left;
-}
-
-/* Adjust card layout to accommodate back button */
-.card {
-  position: relative;
-  padding-top: 40px; /* Make space for back button */
-}
-
-.card .back-button {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-}
-.landing-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  position: relative;
-}
-
-.selection-container {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: 1.5rem;
-}
+button:hover { background-color: #2980b9; }
 
 .back-button {
-  position: absolute;
-  left: 2rem;
-  top: 2rem;
   background: none;
   border: none;
   color: #7f8c8d;
-  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
+  position: absolute;
+  left: 15px;
+  top: 15px;
 }
 
-.back-button:hover {
-  color: #3498db;
+.back-button:hover { color: #3498db; }
+.back-button::before { content: "←"; margin-right: 5px; }
+
+/* Animations */
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  #gameContainer { grid-template-columns: 1fr; }
+  .tile { padding: 15px; font-size: 14px; }
 }
