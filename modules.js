@@ -1,579 +1,467 @@
-const Game = {
-  // Core properties
-  user: null,
-  bot: null,
-  sessionId: null,
-  currentGame: null,
+// game.js
+const GameBot = {
+  // Existing properties
+  isSpeaking: false,
+  currentSpeech: null,
+  voices: [],
+  voicesReady: false,
+  isListening: false,
+  recognition: null,
 
-  // Initialize with game-specific options
-  init(gameType, options = {}) {
-    // Session management
-    this.sessionId = sessionStorage.getItem("gameSessionId") || this.generateSessionId();
-    sessionStorage.setItem("gameSessionId", this.sessionId);
-    sessionStorage.setItem("gameSessionTimestamp", Date.now());
-
-    // User management
-    this.user = new User();
-
-    // Bot initialization with game-specific messages
-    this.bot = new GameBot(this.user, {
-      ...this.getDefaultMessages(gameType),
-      ...options.botMessages,
-    });
-
-    return this;
+  // Default settings
+  settings: {
+    lang: "en-GB", // UK English
+    pitch: 1,
+    rate: 1,
+    volume: 1,
+    listenTimeout: 7000, // 7 seconds
   },
 
-  // Generate a unique session ID
-  generateSessionId() {
-    return "session-" + Math.random().toString(36).substr(2, 12);
+  /**
+   * Initializes voices (called automatically on first speak if needed)
+   */
+  initVoices() {
+    if (!window.speechSynthesis) return;
+
+    // First try to get voices immediately
+    this.voices = window.speechSynthesis.getVoices();
+    if (this.voices.length > 0) {
+      this.voicesReady = true;
+      return;
+    }
+
+    // If not available, setup the event listener
+    window.speechSynthesis.onvoiceschanged = () => {
+      this.voices = window.speechSynthesis.getVoices();
+      this.voicesReady = true;
+      window.speechSynthesis.onvoiceschanged = null; // Cleanup
+    };
   },
 
-  // Game-specific default messages
-  getDefaultMessages(gameType) {
-    const baseMessages = {
-      greetings: [
-        `Welcome back, {name}! Ready for ${gameType}?`,
-        `Good to see you again, {name}! Let's play ${gameType}.`,
-      ],
-      congratulations: ["Great job, {name}!", "Well done, {name}!"],
-      encouragement: ["Keep trying, {name}!", "You can do it, {name}!"],
+  /**
+   * Speaks a statement using browser TTS with UK English
+   * @param {string} statement - Text to be spoken
+   * @param {function} [modifyFn] - Optional function to modify pronunciation
+   */
+  speak(statement, modifyFn) {
+    // Initialize voices if not ready
+    if (!this.voicesReady) {
+      this.initVoices();
+    }
+
+    // Cancel any current speech
+    this.stopSpeaking();
+
+    // Apply modification if provided
+    let textToSpeak = statement;
+    if (modifyFn && typeof modifyFn === "function") {
+      textToSpeak = modifyFn(statement);
+    }
+
+    // Create utterance
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+    // Configure utterance
+    utterance.lang = this.settings.lang;
+    utterance.pitch = this.settings.pitch;
+    utterance.rate = this.settings.rate;
+    utterance.volume = this.settings.volume;
+
+    // Find a UK English voice
+    const ukVoice = this.voices.find((voice) => voice.lang === "en-GB");
+    if (ukVoice) {
+      utterance.voice = ukVoice;
+    }
+
+    // Set event handlers
+    utterance.onstart = () => {
+      this.isSpeaking = true;
+      this.currentSpeech = utterance;
     };
 
-    switch (gameType) {
-      case "matching":
-        return {
-          ...baseMessages,
-          instructions: "Match the verses with their references",
-          gameComplete: "You've matched all the pairs!",
-        };
-      case "recitation":
-        return {
-          ...baseMessages,
-          instructions: "Repeat the verse after hearing it",
-          gameComplete: "Perfect recitation!",
-        };
-      default:
-        return baseMessages;
+    utterance.onend = utterance.onerror = () => {
+      this.isSpeaking = false;
+      this.currentSpeech = null;
+    };
+
+    // Speak it
+    window.speechSynthesis.speak(utterance);
+  },
+
+  /**
+   * Stops any current speech
+   */
+  stopSpeaking() {
+    if (this.isSpeaking) {
+      window.speechSynthesis.cancel();
+      this.isSpeaking = false;
+      this.currentSpeech = null;
     }
   },
 
-  // Account management methods
-  createAccount(name, ageGroup) {
-    this.user.updateName(name);
-    this.user.updateAgeGroup(ageGroup);
-    return this.user;
+  /**
+   * Changes TTS settings
+   * @param {object} newSettings - Partial settings object
+   */
+  configure(newSettings) {
+    Object.assign(this.settings, newSettings);
   },
 
-  selectAccount(userId) {
-    const allUsers = JSON.parse(localStorage.getItem("bibleGameUsers") || "{}");
-    if (allUsers[userId]) {
-      localStorage.setItem("bibleGameCurrentUser", userId);
-      this.user = new User(); // Will auto-load the selected user
-      return true;
-    }
-    return false;
-  },
-
-  // Game management
-  startGame(gameType, config) {
-    this.currentGame = this.createGameInstance(gameType, config);
-    return this.currentGame;
-  },
-
-  createGameInstance(gameType, config) {
-    switch (gameType) {
-      case "matching":
-        return new MatchingGame(config.data, config.containerId, this.bot);
-      case "recitation":
-        return new RecitationGame(config.data, this.bot);
-      default:
-        throw new Error(`Unknown game type: ${gameType}`);
-    }
-  },
-
-  // Speech recognition methods
-  listen(state, statement) {
-    return new Promise((resolve, reject) => {
-      if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
-        reject(new Error("Speech Recognition API is not supported."));
+  /**
+   * Starts speech recognition
+   * @param {string} target - The target phrase to compare against
+   * @param {function} [modifyFn] - Optional function to modify pronunciation
+   * @returns {Promise<object>} Object with recognition results
+   */
+  listen(target, modifyFn) {
+    return new Promise((resolve) => {
+      if (!("webkitSpeechRecognition" in window)) {
+        resolve({
+          target,
+          speech: "",
+          accuracy: 0,
+          error: "Speech recognition not supported",
+        });
         return;
       }
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-
-      if (statement) {
-        const speechRecognitionList = this.createGrammarListFromStatement(statement);
-        recognition.grammars = speechRecognitionList;
+      if (this.isListening) {
+        this.stopListening();
       }
 
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
+      this.isListening = true;
+      this.recognition = new (window.webkitSpeechRecognition ||
+        window.SpeechRecognition)();
+      this.recognition.lang = this.settings.lang;
+      this.recognition.interimResults = false;
+      this.recognition.maxAlternatives = 1;
 
-      recognition.onresult = (event) => {
+      let finalTranscript = "";
+      let timeout;
+
+      // Nested function to evaluate accuracy
+      const evaluate = (speech, target) => {
+        if (!speech || !target) return 0;
+
+        // Apply modification if provided
+        const processedTarget =
+          modifyFn && typeof modifyFn === "function"
+            ? modifyFn(target)
+            : target;
+
+        const processedSpeech =
+          modifyFn && typeof modifyFn === "function"
+            ? modifyFn(speech)
+            : speech;
+
+        // Simple accuracy calculation (can be enhanced)
+        const targetWords = processedTarget.toLowerCase().split(/\s+/);
+        const speechWords = processedSpeech.toLowerCase().split(/\s+/);
+
+        let matches = 0;
+        const maxLength = Math.max(targetWords.length, speechWords.length);
+
+        for (let i = 0; i < maxLength; i++) {
+          if (
+            targetWords[i] &&
+            speechWords[i] &&
+            targetWords[i] === speechWords[i]
+          ) {
+            matches++;
+          }
+        }
+
+        return (matches / maxLength) * 100;
+      };
+
+      // Event handlers
+      this.recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
+        finalTranscript = transcript;
+
+        // Reset timeout on each result
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          this.stopListening();
+          resolve({
+            target,
+            speech: finalTranscript,
+            accuracy: evaluate(finalTranscript, target),
+            isComplete: true,
+          });
+        }, this.settings.listenTimeout);
+      };
+
+      this.recognition.onerror = (event) => {
+        this.stopListening();
         resolve({
-          transcript,
-          matched: this.checkMatch(transcript, statement),
-          confidence: event.results[0][0].confidence,
+          target,
+          speech: finalTranscript,
+          accuracy: evaluate(finalTranscript, target),
+          error: event.error,
         });
       };
 
-      recognition.onerror = (event) => {
-        reject(event.error);
+      this.recognition.onend = () => {
+        if (this.isListening) {
+          // Automatically restart if not manually stopped
+          this.recognition.start();
+        }
       };
 
-      if (state === "start") {
-        recognition.start();
-      } else if (state === "stop" && recognition) {
-        recognition.stop();
-      }
+      // Start listening
+      this.recognition.start();
+
+      // Set initial timeout
+      timeout = setTimeout(() => {
+        this.stopListening();
+        resolve({
+          target,
+          speech: finalTranscript,
+          accuracy: evaluate(finalTranscript, target),
+          isComplete: !!finalTranscript,
+        });
+      }, this.settings.listenTimeout);
     });
   },
 
-  listenContinuous(expectedText, onInterim, onFinal) {
-    return new Promise((resolve, reject) => {
-      if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
-        reject(new Error("Speech Recognition API is not supported."));
-        return;
-      }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = "en-US";
-
-      if (expectedText) {
-        const speechRecognitionList = this.createGrammarListFromStatement(expectedText);
-        recognition.grammars = speechRecognitionList;
-      }
-
-      recognition.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-            if (onFinal) onFinal(finalTranscript);
-          } else {
-            interimTranscript += transcript;
-            if (onInterim) onInterim(interimTranscript);
-          }
-        }
-      };
-
-      recognition.onerror = (event) => {
-        reject(event.error);
-      };
-
-      recognition.onend = () => {
-        console.log("Speech recognition ended");
-      };
-
-      recognition.start();
-
-      resolve({
-        stop: () => {
-          try {
-            recognition.stop();
-          } catch (e) {
-            console.log("Recognition already stopped");
-          }
-        }
-      });
-    });
-  },
-
-  createGrammarListFromStatement(statement) {
-    const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
-    const speechRecognitionList = new SpeechGrammarList();
-
-    const sanitizedStatement = statement.toLowerCase().trim();
-    const grammarString = `#JSGF V1.0; grammar statementGrammar; public <phrase> = ${sanitizedStatement};`;
-    speechRecognitionList.addFromString(grammarString, 1);
-
-    return speechRecognitionList;
-  },
-
-  checkMatch(transcript, statement) {
-    const sanitizedTranscript = transcript.toLowerCase().trim();
-    const sanitizedStatement = statement.toLowerCase().trim();
-    return sanitizedTranscript.includes(sanitizedStatement);
-  },
-
-  calculateSimilarity(str1, str2) {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    const longerLength = longer.length;
-    
-    if (longerLength === 0) return 1.0;
-    
-    return (longerLength - this.editDistance(longer, shorter)) / parseFloat(longerLength);
-  },
-
-  editDistance(s1, s2) {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    const costs = [];
-    for (let i = 0; i <= s1.length; i++) {
-      let lastValue = i;
-      for (let j = 0; j <= s2.length; j++) {
-        if (i === 0) {
-          costs[j] = j;
-        } else {
-          if (j > 0) {
-            let newValue = costs[j - 1];
-            if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-              newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-            }
-            costs[j - 1] = lastValue;
-            lastValue = newValue;
-          }
-        }
-      }
-      if (i > 0) costs[s2.length] = lastValue;
+  /**
+   * Stops speech recognition
+   */
+  stopListening() {
+    if (this.isListening && this.recognition) {
+      this.recognition.stop();
+      this.isListening = false;
+      this.recognition = null;
     }
-    return costs[s2.length];
   },
 
-  formatVerse(verse) {
-    return verse.replace(/,/g, ", ");
+  createUser(name, ageGroup) {
+    return User.createUser(name, ageGroup);
   },
 
-  speak(text) {
-    return new Promise((resolve, reject) => {
-      if ("speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onend = () => resolve();
-        utterance.onerror = (event) => reject(event.error);
-        window.speechSynthesis.speak(utterance);
-      } else {
-        reject(new Error("Text-to-speech is not supported in this browser."));
-      }
+  loadUser(name, ageGroup) {
+    return User.loadUser(name, ageGroup);
+  },
+
+  // Tile game - controlled instantiation
+  createMatchingGame(tiles, containerId) {
+    return new MatchingTilesGame(tiles, containerId);
+  },
+
+  showMessage(message) {
+    // Create container if it doesn't exist
+    if (!document.getElementById("pam-messages")) {
+      const container = document.createElement("div");
+      container.id = "pam-messages";
+      document.body.appendChild(container);
+
+      // Add global dismiss listener (only once)
+      document.addEventListener("click", this.dismissMessage);
+      document.addEventListener("keydown", this.dismissMessage);
+    }
+
+    // Create message element
+    const messageElement = document.createElement("div");
+    messageElement.className = "pam-message";
+    messageElement.innerHTML = `
+      <div class="pam-header">PAM</div>
+      <div class="pam-content">${message}</div>
+    `;
+
+    // Add to container and animate in
+    const container = document.getElementById("pam-messages");
+    container.prepend(messageElement);
+
+    setTimeout(() => {
+      messageElement.style.opacity = "1";
+    }, 10);
+
+    // Add individual click handler
+    messageElement.addEventListener("click", (e) => {
+      e.stopPropagation(); // Prevent triggering global dismiss
+      this.animateDismiss(messageElement);
     });
   },
 
-  playSound(type) {
-    // Implementation for playing sounds
-    console.log(`Playing ${type} sound`);
+  dismissMessage: function () {
+    const messages = document.querySelectorAll(".pam-message");
+    messages.forEach((msg) => {
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 300);
+    });
   },
 
-  replaceEventListener(element, event, handler) {
-    element.removeEventListener(event, handler);
-    element.addEventListener(event, handler);
+  animateDismiss: function (element) {
+    element.style.opacity = "0";
+    setTimeout(() => element.remove(), 300);
   },
 };
 
-// Enhanced User class with cross-game stats
+GameBot.initVoices();
+
+export default GameBot;
+
 class User {
-  constructor() {
-    this.currentUserId = localStorage.getItem("bibleGameCurrentUser");
-    this.loadUserData();
+  constructor(user_name, ageGroup, stats = {}) {
+    this.user_name = user_name;
+    this.ageGroup = ageGroup;
+    this.stats = stats;
   }
 
-  loadUserData() {
-    const allUsers = JSON.parse(localStorage.getItem("bibleGameUsers") || "{}");
-
-    if (this.currentUserId && allUsers[this.currentUserId]) {
-      const userData = allUsers[this.currentUserId];
-      this.id = this.currentUserId;
-      this.name = userData.name;
-      this.ageGroup = userData.ageGroup;
-      this.preferences = userData.preferences || {};
-      this.stats = {
-        ...this.createDefaultStats(),
-        ...(userData.stats || {}),
-      };
-    } else {
-      this.id = "guest-" + Math.random().toString(36).substr(2, 9);
-      this.name = "Guest";
-      this.ageGroup = null;
-      this.preferences = {};
-      this.stats = this.createDefaultStats();
-      this.saveUserData();
+  // Static method to create and save a new user
+  static createUser(user_name, ageGroup) {
+    if (User.userExists(user_name, ageGroup)) {
+      throw new Error("User with this name and age group already exists");
     }
+
+    const newUser = new User(user_name, ageGroup);
+    newUser.saveToLocalStorage();
+    return newUser;
   }
 
-  createDefaultStats() {
+  // Updates existing user in localStorage
+  static updateUser(user) {
+    if (!(user instanceof User)) {
+      throw new Error("Invalid user object");
+    }
+
+    if (!User.userExists(user.user_name, user.ageGroup)) {
+      throw new Error("User not found");
+    }
+
+    user.saveToLocalStorage();
+    return user;
+  }
+
+  // Deletes user from localStorage
+  static deleteUser(user) {
+    if (!(user instanceof User)) {
+      throw new Error("Invalid user object");
+    }
+
+    localStorage.removeItem(User.getStorageKey(user.user_name, user.ageGroup));
+  }
+
+  // Checks if user exists in localStorage
+  static userExists(user_name, ageGroup) {
+    return (
+      localStorage.getItem(User.getStorageKey(user_name, ageGroup)) !== null
+    );
+  }
+
+  // Loads user from localStorage
+  static loadUser(user_name, ageGroup) {
+    const userData = localStorage.getItem(
+      User.getStorageKey(user_name, ageGroup)
+    );
+    return userData ? User.fromJSON(userData) : null;
+  }
+
+  // Saves current user to localStorage
+  saveToLocalStorage() {
+    localStorage.setItem(
+      User.getStorageKey(this.user_name, this.ageGroup),
+      JSON.stringify(this.toJSON())
+    );
+  }
+
+  // Helper method to generate storage key
+  static getStorageKey(user_name, ageGroup) {
+    return `user_${user_name}_${ageGroup}`;
+  }
+
+  // Converts user to JSON
+  toJSON() {
     return {
-      totalGamesPlayed: 0,
-      lastPlayed: new Date().toISOString(),
-      games: {
-        matching: { plays: 0, completions: 0 },
-        recitation: { attempts: 0, successes: 0 },
-      },
-    };
-  }
-
-  saveUserData() {
-    const allUsers = JSON.parse(localStorage.getItem("bibleGameUsers") || "{}");
-    allUsers[this.id] = {
-      name: this.name,
+      user_name: this.user_name,
       ageGroup: this.ageGroup,
-      preferences: this.preferences,
       stats: this.stats,
     };
-    localStorage.setItem("bibleGameUsers", JSON.stringify(allUsers));
-    localStorage.setItem("bibleGameCurrentUser", this.id);
   }
 
-  updateName(newName) {
-    this.name = newName || "Guest";
-    this.saveUserData();
-  }
-
-  updateAgeGroup(ageGroup) {
-    this.ageGroup = ageGroup;
-    this.saveUserData();
-  }
-
-  recordGameAction(gameType, action, value = 1) {
-    if (!this.stats.games[gameType]) {
-      this.stats.games[gameType] = {};
-    }
-    this.stats.games[gameType][action] =
-      (this.stats.games[gameType][action] || 0) + value;
-    this.stats.totalGamesPlayed += value;
-    this.stats.lastPlayed = new Date().toISOString();
-    this.saveUserData();
+  // Creates User instance from JSON
+  static fromJSON(json) {
+    const data = typeof json === "string" ? JSON.parse(json) : json;
+    return new User(data.user_name, data.ageGroup, data.stats || {});
   }
 }
 
-// Flexible GameBot class
-class GameBot {
-  constructor(user, messages = {}) {
-    this.user = user;
-    this.messages = messages;
-    this.messageQueue = [];
-    this.isSpeaking = false;
+class MatchingTilesGame {
+  constructor(tilesData, containerID) {
+    this.tilesData = tilesData;
+    this.containerID = containerID;
+    this.pairsCount = tilesData.length;
+    this.tilePairs = [];
   }
 
-  send(messageType, customText) {
-    const message = customText || this.getRandomMessage(messageType);
-
-    if (!message) {
-      console.warn(`No message defined for type: ${messageType}`);
-      return Promise.resolve();
-    }
-
-    const processedMessage = this.replacePlaceholders(message);
-
-    return new Promise((resolve) => {
-      this.messageQueue.push({ text: processedMessage, resolve });
-      this.processQueue();
-    });
-  }
-
-  processQueue() {
-    if (this.isSpeaking || this.messageQueue.length === 0) return;
-
-    this.isSpeaking = true;
-    const { text, resolve } = this.messageQueue.shift();
-
-    this.speak(text).then(() => {
-      this.isSpeaking = false;
-      resolve();
-      this.processQueue();
-    });
-  }
-
-  getRandomMessage(type) {
-    const messages = this.messages[type];
-    if (!messages || messages.length === 0) return null;
-    return messages[Math.floor(Math.random() * messages.length)];
-  }
-
-  replacePlaceholders(text) {
-    return text
-      .replace("{name}", this.user.name)
-      .replace("{ageGroup}", this.user.ageGroup || "");
-  }
-
-  speak(text) {
-    return new Promise((resolve) => {
-      if ("speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
-        window.speechSynthesis.speak(utterance);
-      } else {
-        resolve();
-      }
-    });
-  }
-
-  // Convenience methods
-  greet() {
-    return this.send("greetings");
-  }
-
-  congratulate() {
-    return this.send("congratulations");
-  }
-
-  encourage() {
-    return this.send("encouragement");
-  }
-
-  giveInstructions() {
-    return this.send("instructions");
-  }
-
-  announceCompletion() {
-    return this.send("gameComplete");
-  }
-}
-
-// MatchingGame class
-class MatchingGame {
-  constructor(data, containerId, bot) {
-    this.data = data;
-    this.container = document.getElementById(containerId);
-    this.bot = bot;
-    this.selectedTiles = [];
-    this.matchedPairs = [];
-
-    Game.user.recordGameAction("matching", "plays");
-    this.bot.giveInstructions().then(() => {
-      this.shuffleData();
-      this.createTiles();
-    });
-  }
-
-  shuffleData() {
-    for (let i = this.data.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.data[i], this.data[j]] = [this.data[j], this.data[i]];
-    }
-  }
-
+  // Creates the tile elements and returns the node tree
   createTiles() {
-    this.container.innerHTML = "";
-    const columnsWrapper = document.createElement("div");
-    columnsWrapper.className = "columns-wrapper";
+    // Create main container
+    const gameContainer = document.createElement("div");
+    gameContainer.className = "tile-matching-game";
 
-    const referenceColumn = document.createElement("div");
-    referenceColumn.className = "column";
-    this.data.forEach((pair, index) => {
-      const tile = this.createTile(pair[0], index, "reference");
-      referenceColumn.appendChild(tile);
+    // Create columns container
+    const columnsContainer = document.createElement("div");
+    columnsContainer.className = "columns-container";
+
+    // Prepare tile pairs with unique IDs
+    this.tilePairs = this.tilesData.map((pair, index) => {
+      const pairId = (index + 1).toString().padStart(2, "0");
+      return {
+        id: pairId,
+        left: { content: pair[0], pairId },
+        right: { content: pair[1], pairId },
+      };
     });
 
-    const textColumn = document.createElement("div");
-    textColumn.className = "column";
-    this.data.forEach((pair, index) => {
-      const tile = this.createTile(pair[1], index, "text");
-      textColumn.appendChild(tile);
+    // Create left and right columns
+    const leftColumn = this.createColumn("left");
+    const rightColumn = this.createColumn("right");
+
+    // Shuffle tiles in each column
+    this.shuffleTiles(leftColumn);
+    this.shuffleTiles(rightColumn);
+
+    // Build the node tree
+    columnsContainer.appendChild(leftColumn);
+    columnsContainer.appendChild(rightColumn);
+    gameContainer.appendChild(columnsContainer);
+
+    return gameContainer;
+  }
+
+  // Creates a single column of tiles
+  createColumn(side) {
+    const column = document.createElement("div");
+    column.className = `column ${side}-column`;
+
+    this.tilePairs.forEach((pair) => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.dataset.pairId = pair.id;
+      tile.dataset.side = side;
+      tile.textContent = pair[side].content;
+      column.appendChild(tile);
     });
 
-    columnsWrapper.appendChild(referenceColumn);
-    columnsWrapper.appendChild(textColumn);
-    this.container.appendChild(columnsWrapper);
+    return column;
   }
 
-  createTile(content, pairId, type) {
-    const tile = document.createElement("div");
-    tile.className = "tile";
-    tile.dataset.pairId = pairId;
-    tile.dataset.type = type;
-    tile.textContent = content;
-
-    tile.addEventListener("click", () => this.handleTileClick(tile));
-    return tile;
-  }
-
-  handleTileClick(tile) {
-    if (tile.classList.contains("matched")) return;
-
-    this.selectedTiles.push(tile);
-    tile.classList.add("selected");
-
-    if (this.selectedTiles.length === 2) {
-      this.checkMatch();
+  // Shuffles tiles within a column
+  shuffleTiles(column) {
+    for (let i = column.children.length; i >= 0; i--) {
+      column.appendChild(column.children[(Math.random() * i) | 0]);
     }
   }
 
-  checkMatch() {
-    const [tile1, tile2] = this.selectedTiles;
-
-    if (tile1.dataset.pairId === tile2.dataset.pairId) {
-      tile1.classList.add("matched");
-      tile2.classList.add("matched");
-      this.matchedPairs.push([tile1, tile2]);
-
-      if (this.matchedPairs.length === this.data.length) {
-        this.handleGameComplete();
-      }
-    } else {
-      setTimeout(() => {
-        tile1.classList.remove("selected");
-        tile2.classList.remove("selected");
-        this.bot.encourage();
-      }, 1000);
+  // Renders the game to the specified container
+  render() {
+    const container = document.getElementById(this.containerID);
+    if (!container) {
+      console.error(`Container with ID ${this.containerID} not found`);
+      return;
     }
-
-    this.selectedTiles = [];
-  }
-
-  handleGameComplete() {
-    Game.user.recordGameAction("matching", "completions");
-    this.bot.announceCompletion();
+    container.appendChild(this.createTiles());
   }
 }
-
-// RecitationGame class (example for another game type)
-class RecitationGame {
-  constructor(data, bot) {
-    this.verses = data;
-    this.bot = bot;
-    this.currentVerseIndex = 0;
-
-    Game.user.recordGameAction("recitation", "attempts");
-    this.startRecitation();
-  }
-
-  startRecitation() {
-    this.bot.giveInstructions().then(() => {
-      this.playCurrentVerse();
-    });
-  }
-
-  playCurrentVerse() {
-    const currentVerse = this.verses[this.currentVerseIndex];
-    this.bot
-      .send("versePrompt", `Please recite: ${currentVerse.reference}`)
-      .then(() => Game.speak(currentVerse.text))
-      .then(() => this.listenForRecitation(currentVerse.text));
-  }
-
-  listenForRecitation(expectedText) {
-    Game.listen("start", expectedText).then((result) => {
-      if (result.matched) {
-        Game.user.recordGameAction("recitation", "successes");
-        this.bot.congratulate().then(() => this.nextVerse());
-      } else {
-        this.bot.encourage().then(() => this.playCurrentVerse());
-      }
-    });
-  }
-
-  nextVerse() {
-    this.currentVerseIndex++;
-    if (this.currentVerseIndex < this.verses.length) {
-      this.playCurrentVerse();
-    } else {
-      this.bot.announceCompletion();
-    }
-  }
-}
-
-export default Game;
