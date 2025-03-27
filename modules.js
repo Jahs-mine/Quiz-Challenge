@@ -236,19 +236,6 @@ const GameBot = {
     }
   },
 
-  createUser(name, ageGroup) {
-    return User.createUser(name, ageGroup);
-  },
-
-  loadUser(name, ageGroup) {
-    return User.loadUser(name, ageGroup);
-  },
-
-  // Tile game - controlled instantiation
-  createMatchingGame(tiles, containerId) {
-    return new MatchingTilesGame(tiles, containerId);
-  },
-
   showMessage(message) {
     // Create container if it doesn't exist
     if (!document.getElementById("pam-messages")) {
@@ -288,19 +275,15 @@ const GameBot = {
     const messages = document.querySelectorAll(".pam-message");
     messages.forEach((msg) => {
       msg.style.opacity = "0";
-      setTimeout(() => msg.remove(), 300);
+      setTimeout(() => msg.remove(), 7000);
     });
   },
 
   animateDismiss: function (element) {
     element.style.opacity = "0";
-    setTimeout(() => element.remove(), 300);
+    setTimeout(() => element.remove(), 7000);
   },
 };
-
-GameBot.initVoices();
-
-export default GameBot;
 
 class User {
   constructor(user_name, ageGroup, stats = {}) {
@@ -371,6 +354,13 @@ class User {
     return `user_${user_name}_${ageGroup}`;
   }
 
+  //Get current user frim local storage
+  static getCurrent() {
+    const currentUserData = localStorage.getItem('currentUser');
+    return currentUserData ? User.fromJSON(currentUserData) : null;
+  }
+
+
   // Converts user to JSON
   toJSON() {
     return {
@@ -384,6 +374,154 @@ class User {
   static fromJSON(json) {
     const data = typeof json === "string" ? JSON.parse(json) : json;
     return new User(data.user_name, data.ageGroup, data.stats || {});
+  }
+
+  /**
+   * Creates and renders a login page UI
+   * @param {function} onLogin - Callback when user logs in successfully
+   * @param {HTMLElement} container - Element to render the UI in
+   */
+  static createLogInPage(onLogin, container) {
+    // Clear container
+    container.innerHTML = "";
+
+    // Get all users from localStorage
+    const users = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith("user_")) {
+        const userData = localStorage.getItem(key);
+        try {
+          users.push(User.fromJSON(userData));
+        } catch (e) {
+          console.error("Error parsing user data:", e);
+        }
+      }
+    }
+
+    // Create UI elements
+    const loginDiv = document.createElement("div");
+    loginDiv.className = "user-login";
+
+    if (users.length === 0) {
+      loginDiv.innerHTML = `
+        <h2>No accounts found</h2>
+        <p>Please sign up first</p>
+        <button class="switch-to-signup">Go to Sign Up</button>
+      `;
+
+      const switchBtn = loginDiv.querySelector(".switch-to-signup");
+      switchBtn.addEventListener("click", () => {
+        User.createSignUpPage(onLogin, container);
+      });
+    } else {
+      loginDiv.innerHTML = `
+        <h2>Select Your Account</h2>
+        <div class="user-list"></div>
+      `;
+
+      const userList = loginDiv.querySelector(".user-list");
+
+      users.forEach((user) => {
+        const userBtn = document.createElement("button");
+        userBtn.className = "user-account";
+        userBtn.innerHTML = `
+          <span class="user-name">${user.user_name}</span>
+          <span class="user-age">${user.ageGroup}</span>
+        `;
+
+        userBtn.addEventListener("click", () => {
+          // Set current user in localStorage
+          localStorage.setItem("currentUser", JSON.stringify(user.toJSON()));
+          if (onLogin) onLogin(user);
+        });
+
+        userList.appendChild(userBtn);
+      });
+
+      // Add sign up option
+      const signUpOption = document.createElement("div");
+      signUpOption.className = "signup-option";
+      signUpOption.innerHTML = `<p>Don't have an account? <button class="switch-to-signup">Sign Up</button></p>`;
+
+      const switchBtn = signUpOption.querySelector(".switch-to-signup");
+      switchBtn.addEventListener("click", () => {
+        User.createSignUpPage(onLogin, container);
+      });
+
+      loginDiv.appendChild(signUpOption);
+    }
+
+    container.appendChild(loginDiv);
+  }
+
+  /**
+   * Creates and renders a sign up page UI
+   * @param {function} onSignUp - Callback when user signs up successfully
+   * @param {HTMLElement} container - Element to render the UI in
+   */
+  static createSignUpPage(onSignUp, container) {
+    // Clear container
+    container.innerHTML = "";
+
+    const signupDiv = document.createElement("div");
+    signupDiv.className = "user-signup";
+    signupDiv.innerHTML = `
+      <h2>Create Your Account</h2>
+      <form class="signup-form">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label>Age Group:</label>
+          <div class="age-options">
+            <label>
+              <input type="radio" name="ageGroup" value="teen" required>
+              Teen (13-15)
+            </label>
+            <label>
+              <input type="radio" name="ageGroup" value="superteen">
+              Superteen (16-19)
+            </label>
+          </div>
+        </div>
+        <button type="submit">Create Account</button>
+      </form>
+      <div class="login-option">
+        <p>Already have an account? <button class="switch-to-login">Log In</button></p>
+      </div>
+    `;
+
+    const form = signupDiv.querySelector(".signup-form");
+    const switchBtn = signupDiv.querySelector(".switch-to-login");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const username = form.username.value.trim();
+      const ageGroup = form.ageGroup.value;
+
+      if (!username || !ageGroup) {
+        alert("Please fill in all fields");
+        return;
+      }
+
+      try {
+        const newUser = User.createUser(username, ageGroup);
+        localStorage.setItem("currentUser", JSON.stringify(newUser.toJSON()));
+
+        if (onSignUp) onSignUp(newUser);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    switchBtn.addEventListener("click", () => {
+      User.createLogInPage(onSignUp, container);
+    });
+
+    container.appendChild(signupDiv);
   }
 }
 
@@ -465,3 +603,21 @@ class MatchingTilesGame {
     container.appendChild(this.createTiles());
   }
 }
+
+GameBot.initVoices();
+
+GameBot.User = {
+  create: (name, ageGroup) => new User(name, ageGroup).saveToLocalStorage(),
+  load: User.loadUser,
+  exists: User.userExists,
+  delete: User.deleteUser,
+  signUp: User.createSignUpPage,
+  logIn: User.createLogInPage,
+  getCurrent: User.getCurrent,
+};
+
+// Keep the original class reference if needed elsewhere
+GameBot.UserClass = User;
+GameBot.MatchingTilesGame = MatchingTilesGame;
+
+export default GameBot;

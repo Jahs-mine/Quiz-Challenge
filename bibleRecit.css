@@ -1,660 +1,115 @@
-/* ===== BASE STYLES ===== */
-body {
-  font-family: "Arial", sans-serif;
-  background-color: #f4f4f9;
-  color: #333;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.6;
-}
-
-/* ===== MAIN CONTAINER ===== */
-.app-container {
-  width: 100%;
-  max-width: 800px;
-  padding: 0 20px;
-  box-sizing: border-box;
-  position: relative;
-}
-
-/* ===== CARD CONTAINERS ===== */
-.card-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 40px 30px 30px;
-  margin: 20px 0;
-  position: relative;
-  width: 100%;
-}
-
-/* ===== BUTTON STYLES ===== */
-.mode-selection-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 20px;
-  margin: 10px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 300px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.mode-selection-btn:hover {
-  background-color: #2980b9;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.mode-selection-btn .main-text {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.mode-selection-btn .sub-text {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-/* ===== BACK BUTTON (NON-OVERLAPPING) ===== */
-.back-button {
-  position: absolute;
-  left: 25px;
-  top: 25px;
-  background: none;
-  border: none;
-  color: #7f8c8d;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
-  z-index: 10;
-}
-
-.back-button:hover {
-  color: #3498db;
-}
-
-.back-button::before {
-  content: "←";
-  font-size: 1.2rem;
-}
-
-/* ===== CATEGORY CARDS WITH PROGRESS BARS ===== */
-.category-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #eee;
-}
-
-.category-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.category-card h3 {
-  color: #2c3e50;
-  margin: 0 0 10px 0;
-}
-
-.category-card p {
-  color: #666;
-  margin: 0 0 15px 0;
-  line-height: 1.5;
-}
-
-/* Progress bar positioned at bottom */
-.category-card .progress-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: #f0f0f0;
-}
-
-.category-card .progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #2ecc71;
-  transition: width 0.5s ease;
-}
-
-/* ===== MATCHING GAME LAYOUT ===== */
-.matching-game-container {
-  width: 100%;
-  padding: 15px;
-}
-
-.matching-game-board {
-  display: flex;
-  gap: 15px;
-  width: 100%;
-  min-height: 300px;
-}
-
-.matching-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.matching-tile {
-  background-color: #3498db;
-  color: white;
-  border-radius: 8px;
-  padding: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-  font-size: 1rem;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  word-break: break-word;
-}
-
-/* ===== RESPONSIVE ADJUSTMENTS ===== */
-@media (max-width: 768px) {
-  .app-container {
-    padding: 0 15px;
-  }
-
-  .card-container {
-    padding: 40px 20px 20px;
-  }
-
-  .back-button {
-    left: 20px;
-    top: 20px;
-  }
-
-  .matching-game-board {
-    flex-direction: column;
-  }
-
-  .matching-column {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    padding: 15px;
-  }
-
-  .mode-selection-btn {
-    padding: 15px;
-  }
-
-  .matching-tile {
-    padding: 12px;
-    min-height: 70px;
-  }
-}
-
-/* ===== BUTTON STYLES ===== */
-/* Main action buttons (Learn, Match) */
-.selection-btn {
-  display: flex;
-  flex-direction: column;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 20px;
-  margin: 10px auto;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 280px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.selection-btn:hover {
-  background-color: #2980b9;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.selection-btn .main-text {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.selection-btn .sub-text {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-/* Category selection buttons */
-.category-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 15px 20px;
-  margin: 8px 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 300px;
-  font-size: 1rem;
-  text-align: center;
-  display: block;
-}
-
-/* ===== MATCHING TILE ALIGNMENT FIX ===== */
-.matching-game-board {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  width: 100%;
-  align-items: start; /* Ensures rows stay aligned */
-}
-
-.matching-column {
-  display: grid;
-  gap: 12px;
-  grid-auto-rows: minmax(80px, auto); /* Equal height rows */
-}
-
-.matching-tile {
-  background-color: #3498db;
-  color: white;
-  border-radius: 8px;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 80px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-/* Ensures both columns have same number of rows */
-.matching-column::after {
-  content: "";
-  display: block;
-  height: 0;
-  grid-row: span 999; /* Force equal height */
-}
-
-/* ===== RESPONSIVE FIXES ===== */
-@media (max-width: 768px) {
-  .matching-game-board {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .matching-column {
-    gap: 10px;
-  }
-
-  .matching-tile {
-    min-height: 70px;
-    padding: 12px;
-  }
-
-  .selection-btn {
-    max-width: 240px;
-    padding: 16px;
-  }
-}
-
-/* ===== MATCHING GAME - ALWAYS VISIBLE COLUMNS ===== */
-.matching-game-container {
-  width: 100%;
-  overflow: visible;
-  padding: 0 10px;
-}
-
-.matching-game-board {
-  display: grid;
-  grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr);
-  gap: 10px;
-  width: 100%;
-  min-height: 300px;
-}
-
-.matching-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.matching-tile {
-  background-color: #3498db;
-  color: white;
-  border-radius: 8px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  font-size: 14px;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  word-break: break-word;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Force equal number of rows in both columns */
-.matching-column::after {
-  content: "";
-  flex: 1;
-}
-
-/* ===== RESPONSIVE ADJUSTMENTS ===== */
-@media (max-width: 600px) {
-  .matching-game-board {
-    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr);
-    gap: 8px;
-  }
-
-  .matching-tile {
-    padding: 10px;
-    min-height: 70px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 400px) {
-  .matching-game-board {
-    grid-template-columns: minmax(100px, 1fr) minmax(100px, 1fr);
-  }
-
-  .matching-tile {
-    font-size: 12px;
-    min-height: 60px;
-  }
-}
-
-/* PAM (Page Assistance Module) Styles */
-.pam-container {
+/* PAM Message System Styles */
+#pam-messages {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  bottom: 20px;
+  right: 20px;
   z-index: 1000;
 }
 
-.pam-bubble {
-  background-color: white;
+.pam-message {
+  width: 300px;
+  border: 2px solid #4a6ea9;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  max-width: 80%;
-  width: 100%;
-  max-height: 50vh;
-  padding: 20px;
-  position: relative;
+  padding: 15px;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  opacity: 1;
+  transition: opacity 3s ease;
+  cursor: pointer;
+}
+
+.pam-header {
+  border-bottom: 2px solid #4a6ea9;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .pam-content {
-  overflow-y: auto;
-  max-height: calc(50vh - 40px);
+  min-height: 50px;
+  line-height: 1.5;
 }
 
-/* Learning Interface Styles */
-.learning-container {
-  position: relative;
-  padding-top: 60px; /* Space for back button */
-}
 
-.learning-controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
 
-.speak-btn {
-  background-color: #2ecc71;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
+/* Login icon styles */
+.login-icon {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 2rem;
+  color: #4a6fa5;
   cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  z-index: 1000;
+  transition: transform 0.2s, color 0.2s;
 }
 
-.speak-btn:hover {
-  background-color: #27ae60;
+.login-icon:hover {
+  transform: scale(1.1);
+  color: #3a5a8a;
 }
 
-#feedback-container {
-  margin-top: 20px;
-  text-align: center;
-  min-height: 60px;
+/* Add this if you want a tooltip on hover */
+.login-icon::after {
+  content: "Account";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
-.listening {
-  color: #3498db;
-  font-weight: bold;
+.login-icon:hover::after {
+  opacity: 1;
 }
 
-.success {
-  color: #2ecc71;
-  font-weight: bold;
-}
-
-.error {
-  color: #e74c3c;
-}
-
-.small-btn {
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  margin-top: 10px;
-}
-
-/* Progress bar styles */
-.progress-container {
-  width: 100%;
-  height: 10px;
-  background: #f0f0f0;
-  border-radius: 5px;
-  margin: 20px 0;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #2ecc71;
-  transition: width 0.5s ease;
-}
-
-.user-speech {
-  margin: 15px 0;
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 5px;
-  border-left: 3px solid #4caf50;
-}
-
-.user-speech em {
-  font-style: normal;
-  color: #333;
-}
-
-.speak-btn.listening {
-  background-color: #f44336;
-}
-
-.feedback-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.feedback-result {
-  margin-bottom: 15px;
-}
-
-.partial {
-  color: #ff9800;
-}
-
-/* Account Selection Page Styling */
-.account-container {
-  max-width: 600px;
+/* Form Styles */
+.user-login, .user-signup {
+  max-width: 400px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background: white;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.account-container h1 {
+.user-login h2, .user-signup h2 {
   color: #2c3e50;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
-.bot-message {
-  background-color: #e9f7fe;
-  color: #2c3e50;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border-left: 4px solid #3498db;
-  font-size: 1.1rem;
-}
-
-.accounts-list {
-  margin: 1.5rem 0;
-}
-
-.account-item {
+.signup-form, .login-form {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  margin-bottom: 0.8rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-left: 4px solid #3498db;
-}
-
-.account-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #f0f8ff;
-}
-
-.account-name {
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.account-age {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-  background-color: #ecf0f1;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-}
-
-.no-accounts-message {
-  text-align: center;
-  padding: 1.5rem;
-  color: #7f8c8d;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.create-account-btn {
-  display: block;
-  width: 100%;
-  padding: 0.8rem;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 1rem;
-}
-
-.create-account-btn:hover {
-  background-color: #2980b9;
-}
-
-/* Account Creation Form Styling */
-.account-form {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.account-form h2 {
-  color: #2c3e50;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #2c3e50;
   font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
 }
 
-.form-group input,
-.form-group select {
-  width: 100%;
+.form-group input[type="text"],
+.form-group input[type="password"] {
   padding: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -662,68 +117,113 @@ body {
   transition: border-color 0.3s;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
 }
 
-.form-actions {
+.age-options {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 0.3rem;
 }
 
-.submit-btn {
-  flex: 1;
-  padding: 0.8rem;
-  background-color: #2ecc71;
+.age-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.age-options input[type="radio"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #4a6fa5;
+}
+
+button[type="submit"] {
+  background-color: #4a6fa5;
   color: white;
   border: none;
+  padding: 0.8rem;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 0.5rem;
 }
 
-.submit-btn:hover {
-  background-color: #27ae60;
+button[type="submit"]:hover {
+  background-color: #3a5a8a;
 }
 
-.cancel-btn {
-  flex: 1;
-  padding: 0.8rem;
-  background-color: #e74c3c;
-  color: white;
+.signup-option, .login-option {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+}
+
+.switch-to-signup, .switch-to-login {
+  background: none;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
+  color: #4a6fa5;
+  text-decoration: underline;
   cursor: pointer;
-  transition: background-color 0.3s;
+  padding: 0;
+  font-size: inherit;
 }
 
-.cancel-btn:hover {
-  background-color: #c0392b;
+/* User account list styles */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .account-container,
-  .account-form {
-    margin: 1rem;
+.user-account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-account:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.user-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.user-age {
+  font-size: 0.85rem;
+  color: #6c757d;
+  background: #e9ecef;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .user-login, .user-signup {
     padding: 1.5rem;
+    margin: 1rem;
   }
-
-  .form-actions {
+  
+  .age-options {
     flex-direction: column;
     gap: 0.5rem;
-  }
-
-  .submit-btn,
-  .cancel-btn {
-    width: 100%;
   }
 }
