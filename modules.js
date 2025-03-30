@@ -237,17 +237,29 @@ const GameBot = {
   },
 
   showMessage(message) {
+    // Create curtain if it doesn't exist
+    if (!document.getElementById("pam-curtain")) {
+      const curtain = document.createElement("div");
+      curtain.id = "pam-curtain";
+      curtain.className = "pam-curtain";
+      document.body.appendChild(curtain);
+    }
+  
+    // Show the curtain
+    document.getElementById("pam-curtain").style.display = "block";
+  
     // Create container if it doesn't exist
     if (!document.getElementById("pam-messages")) {
       const container = document.createElement("div");
       container.id = "pam-messages";
+      container.className = "pam-messages-container";
       document.body.appendChild(container);
-
+  
       // Add global dismiss listener (only once)
       document.addEventListener("click", this.dismissMessage);
       document.addEventListener("keydown", this.dismissMessage);
     }
-
+  
     // Create message element
     const messageElement = document.createElement("div");
     messageElement.className = "pam-message";
@@ -255,15 +267,16 @@ const GameBot = {
       <div class="pam-header">PAM</div>
       <div class="pam-content">${message}</div>
     `;
-
+  
     // Add to container and animate in
     const container = document.getElementById("pam-messages");
     container.prepend(messageElement);
-
+  
     setTimeout(() => {
       messageElement.style.opacity = "1";
+      messageElement.style.transform = "translateY(0)";
     }, 10);
-
+  
     // Add individual click handler
     messageElement.addEventListener("click", (e) => {
       e.stopPropagation(); // Prevent triggering global dismiss
@@ -271,17 +284,28 @@ const GameBot = {
     });
   },
 
-  dismissMessage: function () {
-    const messages = document.querySelectorAll(".pam-message");
-    messages.forEach((msg) => {
-      msg.style.opacity = "0";
-      setTimeout(() => msg.remove(), 7000);
-    });
-  },
-
   animateDismiss: function (element) {
-    element.style.opacity = "0";
-    setTimeout(() => element.remove(), 7000);
+    element.classList.add('dismissing');
+    setTimeout(() => {
+      element.remove();
+      // Hide curtain if no messages left
+      if (document.querySelectorAll('.pam-message:not(.dismissing)').length === 0) {
+        document.getElementById("pam-curtain").style.display = "none";
+      }
+    }, 300);
+  },
+  
+  dismissMessage: function () {
+    const messages = document.querySelectorAll(".pam-message:not(.dismissing)");
+    messages.forEach((msg) => {
+      msg.classList.add('dismissing');
+    });
+    
+    setTimeout(() => {
+      messages.forEach(msg => msg.remove());
+      // Hide curtain after all messages are dismissed
+      document.getElementById("pam-curtain").style.display = "none";
+    }, 300);
   },
 };
 

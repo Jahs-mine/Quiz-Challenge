@@ -1,39 +1,78 @@
-/* PAM Message System Styles */
-#pam-messages {
+/* PAM Curtain Styles */
+
+/* PAM Message Styles */
+.pam-curtain {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+.pam-messages-container {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
   z-index: 1000;
+
+  top: 50%;
+  transform: translateY(-50%);
+  padding-top: 0;
 }
 
 .pam-message {
-  width: 300px;
-  border: 2px solid #4a6ea9;
+
   border-radius: 12px;
-  padding: 15px;
-  margin: 20px 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f8ff;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  opacity: 1;
-  transition: opacity 3s ease;
-  cursor: pointer;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  max-width: 80%;
+  min-width: 300px;
+  margin-bottom: 15px;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  border-left: 5px solid #6c757d;
 }
 
 .pam-header {
-  border-bottom: 2px solid #4a6ea9;
-  margin-bottom: 10px;
-  padding-bottom: 5px;
-  text-align: center;
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px 8px 0 0;
   font-weight: bold;
+  font-size: 1.1em;
 }
 
 .pam-content {
-  min-height: 50px;
-  line-height: 1.5;
+  padding: 15px;
+  color: #212529;
+  font-size: 1em;
+  line-height: 1.4;
 }
 
+/* Animation for message dismissal */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
 
+.pam-message.dismissing {
+  animation: fadeOut 0.3s forwards;
+}
 
 /* Login icon styles */
 .login-icon {
@@ -74,7 +113,8 @@
 }
 
 /* Form Styles */
-.user-login, .user-signup {
+.user-login,
+.user-signup {
   max-width: 400px;
   margin: 2rem auto;
   padding: 2rem;
@@ -83,14 +123,16 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.user-login h2, .user-signup h2 {
+.user-login h2,
+.user-signup h2 {
   color: #2c3e50;
   text-align: center;
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
 }
 
-.signup-form, .login-form {
+.signup-form,
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -161,13 +203,15 @@ button[type="submit"]:hover {
   background-color: #3a5a8a;
 }
 
-.signup-option, .login-option {
+.signup-option,
+.login-option {
   text-align: center;
   margin-top: 1.5rem;
   color: #666;
 }
 
-.switch-to-signup, .switch-to-login {
+.switch-to-signup,
+.switch-to-login {
   background: none;
   border: none;
   color: #4a6fa5;
@@ -217,11 +261,12 @@ button[type="submit"]:hover {
 
 /* Responsive adjustments */
 @media (max-width: 480px) {
-  .user-login, .user-signup {
+  .user-login,
+  .user-signup {
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .age-options {
     flex-direction: column;
     gap: 0.5rem;
