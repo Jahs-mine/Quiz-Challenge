@@ -236,74 +236,136 @@ const GameBot = {
     }
   },
 
-  showMessage(message) {
-    // Create curtain if it doesn't exist
+  // Message System Properties
+  messageQueue: [],
+  isShowingMessage: false,
+  displayedMessageIds: new Set(),
+
+  // Message Methods
+  showMessage(message, options = {}) {
+    // Skip if this is a one-time message that's already been shown
+    if (options.id && this.displayedMessageIds.has(options.id)) {
+      return;
+    }
+
+    // Add to queue (prioritize important messages)
+    const messageObj = { text: message, ...options };
+    if (options.important) {
+      this.messageQueue.unshift(messageObj);
+    } else {
+      this.messageQueue.push(messageObj);
+    }
+
+    // Process queue if not already showing a message
+    if (!this.isShowingMessage) {
+      this._displayQueuedMessage();
+    }
+  },
+
+  _displayQueuedMessage() {
+    if (this.messageQueue.length === 0) {
+      this.isShowingMessage = false;
+      return;
+    }
+
+    this.isShowingMessage = true;
+    const messageObj = this.messageQueue.shift();
+
+    // Mark one-time messages
+    if (messageObj.id) {
+      this.displayedMessageIds.add(messageObj.id);
+    }
+
+    // Create UI elements if needed
+    this._ensureMessageUIExists();
+
+    // Show the curtain
+    document.getElementById("pam-curtain").style.display = "block";
+
+    // Create and show message
+    const messageElement = this._createMessageElement(messageObj.text);
+    document.getElementById("pam-messages").appendChild(messageElement);
+
+    // Set up dismissal
+    this._setupDismissHandlers(messageElement, messageObj.onDismiss);
+  },
+
+  _ensureMessageUIExists() {
     if (!document.getElementById("pam-curtain")) {
       const curtain = document.createElement("div");
       curtain.id = "pam-curtain";
       curtain.className = "pam-curtain";
       document.body.appendChild(curtain);
     }
-  
-    // Show the curtain
-    document.getElementById("pam-curtain").style.display = "block";
-  
-    // Create container if it doesn't exist
+
     if (!document.getElementById("pam-messages")) {
       const container = document.createElement("div");
       container.id = "pam-messages";
       container.className = "pam-messages-container";
       document.body.appendChild(container);
-  
-      // Add global dismiss listener (only once)
-      document.addEventListener("click", this.dismissMessage);
-      document.addEventListener("keydown", this.dismissMessage);
     }
-  
-    // Create message element
+  },
+
+  _createMessageElement(text) {
     const messageElement = document.createElement("div");
     messageElement.className = "pam-message";
     messageElement.innerHTML = `
-      <div class="pam-header">PAM</div>
-      <div class="pam-content">${message}</div>
-    `;
-  
-    // Add to container and animate in
-    const container = document.getElementById("pam-messages");
-    container.prepend(messageElement);
-  
+     <div class="pam-header">PAM</div>
+     <div class="pam-content">${text}</div>
+   `;
+
+    // Animate in
     setTimeout(() => {
       messageElement.style.opacity = "1";
       messageElement.style.transform = "translateY(0)";
     }, 10);
-  
-    // Add individual click handler
-    messageElement.addEventListener("click", (e) => {
-      e.stopPropagation(); // Prevent triggering global dismiss
-      this.animateDismiss(messageElement);
-    });
+
+    return messageElement;
   },
 
-  animateDismiss: function (element) {
-    element.classList.add('dismissing');
+  _setupDismissHandlers(messageElement, onDismiss) {
+    const handleDismiss = () => {
+      this.animateDismiss(messageElement);
+      if (onDismiss) onDismiss();
+      this.isShowingMessage = false;
+      this._displayQueuedMessage();
+    };
+
+    // Message click handler
+    messageElement.addEventListener("click", (e) => {
+      e.stopPropagation();
+      handleDismiss();
+    });
+
+    // Global click handler
+    const globalHandler = (e) => {
+      if (!e.target.closest(".pam-message")) {
+        document.removeEventListener("click", globalHandler);
+        handleDismiss();
+      }
+    };
+    document.addEventListener("click", globalHandler);
+  },
+
+  // Original dismissal methods (unchanged)
+  animateDismiss(element) {
+    element.classList.add("dismissing");
     setTimeout(() => {
       element.remove();
-      // Hide curtain if no messages left
-      if (document.querySelectorAll('.pam-message:not(.dismissing)').length === 0) {
+      if (!document.querySelector(".pam-message:not(.dismissing)")) {
         document.getElementById("pam-curtain").style.display = "none";
       }
     }, 300);
   },
-  
-  dismissMessage: function () {
+
+  dismissMessage() {
     const messages = document.querySelectorAll(".pam-message:not(.dismissing)");
     messages.forEach((msg) => {
-      msg.classList.add('dismissing');
+      msg.classList.add("dismissing");
     });
-    
+
     setTimeout(() => {
-      messages.forEach(msg => msg.remove());
-      // Hide curtain after all messages are dismissed
+      messages.forEach((msg) => msg.remove());
       document.getElementById("pam-curtain").style.display = "none";
     }, 300);
   },
@@ -380,10 +442,9 @@ class User {
 
   //Get current user frim local storage
   static getCurrent() {
-    const currentUserData = localStorage.getItem('currentUser');
+    const currentUserData = localStorage.getItem("currentUser");
     return currentUserData ? User.fromJSON(currentUserData) : null;
   }
-
 
   // Converts user to JSON
   toJSON() {
