@@ -272,3 +272,191 @@ button[type="submit"]:hover {
     gap: 0.5rem;
   }
 }
+
+/* Add to bibleRecit.css - Responsive Font Sizes */
+.user-login h2,
+.user-signup h2 {
+  font-size: clamp(1.5rem, 6vw, 1.8rem); /* Scales between 1.5-1.8rem */
+  margin-bottom: 1.2rem;
+}
+
+.user-name {
+  font-size: clamp(1rem, 4.5vw, 1.1rem); /* Scales 1-1.1rem */
+}
+
+.user-age {
+  font-size: clamp(0.75rem, 3.5vw, 0.85rem); /* Scales 0.75-0.85rem */
+}
+
+.form-group label {
+  font-size: clamp(0.9rem, 4vw, 0.95rem); /* Scales 0.9-0.95rem */
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+button[type="submit"] {
+  font-size: clamp(0.95rem, 4.2vw, 1rem); /* Scales 0.95-1rem */
+}
+
+.age-options label {
+  font-size: clamp(0.85rem, 3.8vw, 0.9rem); /* Scales 0.85-0.9rem */
+}
+
+.signup-option,
+.login-option {
+  font-size: clamp(0.85rem, 3.8vw, 0.9rem); /* Scales 0.85-0.9rem */
+}
+
+.switch-to-signup,
+.switch-to-login {
+  font-size: inherit; /* Maintains relative sizing */
+}
+
+/* Enhanced minimum sizes for very small devices */
+@media (max-width: 360px) {
+  .user-login, 
+  .user-signup {
+    padding: 1rem;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="password"] {
+    padding: 0.7rem;
+  }
+  
+  button[type="submit"] {
+    padding: 0.8rem;
+  }
+}
+
+/* Existing styles remain unchanged below this line */
+
+/* Add these styles to bibleRecit.css */
+
+/* Responsive User Account List */
+
+/* For larger screens, show side-by-side */
+@media (min-width: 481px) {
+  .user-account {
+    flex-direction: row; /* Side by side on larger screens */
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Enhance the existing mobile styles */
+@media (max-width: 480px) {
+  .user-login,
+  .user-signup {
+    padding: 1.2rem;
+    margin: 0.8rem;
+    width: calc(100% - 1.6rem); /* Full width minus margins */
+    box-sizing: border-box;
+  }
+
+  .user-list {
+    gap: 0.6rem; /* Reduce gap between items */
+  }
+
+  .age-options {
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+
+  button[type="submit"] {
+    padding: 0.9rem; /* Slightly larger tap target */
+  }
+}
+
+/* Improve form field spacing on small screens */
+.form-group {
+  margin-bottom: 0.8rem;
+}
+
+/* Make radio buttons easier to tap */
+.age-options label {
+  padding: 0.3rem 0;
+}
+
+/* Add to bibleRecit.css - Main Menu Styles */
+.main-menu {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.main-menu h1 {
+  font-size: clamp(1.8rem, 8vw, 2.5rem);
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.menu-buttons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.menu-btn {
+  padding: clamp(1rem, 4vw, 1.2rem);
+  font-size: clamp(1rem, 4.5vw, 1.2rem);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Button Colors - Keep existing */
+.learn-btn { background-color: #4a6fa5; color: white; }
+.quiz-btn { background-color: #5a8a5a; color: white; }
+.matching-game-btn { background-color: #8a5a5a; color: white; }
+
+/* Button Hover States */
+.learn-btn:hover { background-color: #3a5a8a; }
+.quiz-btn:hover { background-color: #4a7a4a; }
+.matching-game-btn:hover { background-color: #7a4a4a; }
+
+/* Responsive Adjustments */
+@media (min-width: 480px) {
+  .menu-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .matching-game-btn {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .menu-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .matching-game-btn {
+    grid-column: auto;
+  }
+  
+  .main-menu {
+    padding: 2rem;
+  }
+}
+
+/* Special small-screen adjustments */
+@media (max-width: 360px) {
+  .main-menu {
+    padding: 1rem;
+  }
+  
+  .menu-btn {
+    padding: 0.9rem;
+  }
+}
